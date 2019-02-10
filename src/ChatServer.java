@@ -1,10 +1,7 @@
 import java.net.*;
 import java.io.*;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 
 public class ChatServer {
 
@@ -17,6 +14,7 @@ public class ChatServer {
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);
             while (running) {
+
                 Socket clientSocket = serverSocket.accept();
                 new ChatServerThread(clientSocket, this);
             }
@@ -32,7 +30,7 @@ public class ChatServer {
     }
 
     void addConnectedClient(Socket socket, ObjectOutputStream outputStream){
-        this.connectedClients.put(socket, outputStream);
+        this.connectedClients.putIfAbsent(socket, outputStream);
     }
 
     Hashtable getConnectedClients(){
