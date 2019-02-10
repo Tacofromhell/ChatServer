@@ -1,5 +1,6 @@
 import java.net.*;
 import java.io.*;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -12,13 +13,12 @@ public class ChatServer {
     private boolean running = true;
     private Hashtable connectedClients = new Hashtable();
 
-    public ChatServer() {
-        try (
-            ServerSocket serverSocket = new ServerSocket(PORT)
-        ) {
+    ChatServer() {
+        try {
+            ServerSocket serverSocket = new ServerSocket(PORT);
             while (running) {
-                new ChatServerThread(serverSocket.accept(), this);
-
+                Socket clientSocket = serverSocket.accept();
+                new ChatServerThread(clientSocket, this);
             }
         } catch (IOException e) {
             System.out.println("Exception caught when trying to listen on port "
@@ -27,32 +27,43 @@ public class ChatServer {
         }
     }
 
-    public  ChatServer get(){
+    ChatServer get(){
         return this;
     }
 
-    public void addConnectedClient(Socket key, DataOutputStream value){
-        this.connectedClients.put(key, value);
+    void addConnectedClient(Socket socket, ObjectOutputStream outputStream){
+        this.connectedClients.put(socket, outputStream);
     }
 
-    public Hashtable getConnectedClients(){
+    Hashtable getConnectedClients(){
         return this.connectedClients;
     }
 
-    public Enumeration getOutputStreams(){
+    Enumeration getOutputStreams(){
         return connectedClients.elements();
     }
 
-    public void sendToAll(String msg){
+    void sendToAll(Message msg){
         for (Enumeration e = getOutputStreams(); e.hasMoreElements(); ) {
-// ... get the output stream ...
-            DataOutputStream dout = (DataOutputStream)e.nextElement();
-// ... and send the message
+            // ... get the output stream ...
+            ObjectOutputStream dataOut = (ObjectOutputStream)e.nextElement();
+            // ... and send the message
             try {
-                dout.writeUTF( msg );
-            } catch( IOException ie ) { System.out.println( ie ); }
+                dataOut.writeObject(msg);
+            } catch( IOException ie ) { ie.printStackTrace(); }
         }
 
+    }
+
+    void removeConnection(Socket socket){
+        try {
+            socket.close();
+            System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
+            connectedClients.remove(socket);
+            System.out.println("Connected clients: " + connectedClients.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

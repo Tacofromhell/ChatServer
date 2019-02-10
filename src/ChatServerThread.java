@@ -2,38 +2,43 @@ import java.net.*;
 import java.io.*;
 
 public class ChatServerThread extends Thread implements Runnable{
-    private Socket socket = null;
+    private Socket clientSocket;
     private ChatServer server;
+    private boolean running = true;
 
-    public ChatServerThread(Socket socket, ChatServer server) {
+    ChatServerThread(Socket clientSocket, ChatServer server) {
         super("ServerThread");
-        this.socket = socket;
+        this.clientSocket = clientSocket;
+        //TODO: Add setSoTimeout()
         this.server = server;
         this.start();
     }
 
     public void run() {
-        try (
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-        ) {
+        try {
+//            InputStream dataIn = new DataInputStream(clientSocket.getInputStream());
+            System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
 
-            server.addConnectedClient(socket, dout);
+            ObjectInputStream dataIn = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
+
+            server.addConnectedClient(clientSocket, dataOut);
             System.out.println("Connected Clients: " + server.getConnectedClients().size());
-            String msg;
-            while ((msg = in.readLine()) != null) {
-                System.out.println("1: " + msg);
-                dout.writeUTF(msg);
-                System.out.println("2: " + msg);
-                dout.flush();
-                System.out.println("3: " + msg);
-//                server.sendToAll(msg);
-                out.println(msg);
-                if (msg.equals("Bye"))
-                    break;
+            while (running) {
+                Message msg = null;
+                try {
+                    msg = (Message) dataIn.readObject();
+                } catch (SocketException se){
+                    System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+                    server.removeConnection(clientSocket);
+//                    server.removeConnection(clientSocket);
+//                    se.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Debug: " + msg.getTimestamp() + " | " + msg.getSender().substring(1) + ": " + msg.getMsg());
+                server.sendToAll(msg);
             }
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
