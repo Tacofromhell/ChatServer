@@ -23,9 +23,9 @@ public class ChatServer {
                 new ChatServerThread(clientSocket, this);
             }
         } catch (IOException e) {
-            System.out.println("Exception caught when trying to listen on port "
-                    + PORT + " or listening for a connection");
-            System.out.println(e.getMessage());
+                System.out.println("Exception caught when trying to listen on port "
+                        + PORT + " or listening for a connection");
+                System.out.println(e.getMessage());
         }
     }
 
@@ -41,31 +41,15 @@ public class ChatServer {
         return this.connectedClients;
     }
 
-//    Enumeration getOutputStreams(){
-//        return connectedClients.elements();
-//    }
-
     void sendToAll(Message msg){
-            Stream.of(connectedClients.values())
-                    .forEach(value -> {
-                        value.forEach(outputStream -> {
-                            try {
-                                outputStream.writeObject(msg);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    });
-
-
-//        for (Enumeration e = getOutputStreams(); e.hasMoreElements(); ) {
-//            // ... get the output stream ...
-//            ObjectOutputStream dataOut = (ObjectOutputStream)e.nextElement();
-//            // ... and send the message
-//            try {
-//                dataOut.writeObject(msg);
-//            } catch( IOException ie ) { ie.printStackTrace(); }
-//        }
+        Stream.of(connectedClients.values())
+                .forEach(client -> client.forEach(outputStream -> {
+                    try {
+                        outputStream.writeObject(msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }));
     }
 
     void removeConnection(Socket socket){

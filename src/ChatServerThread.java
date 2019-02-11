@@ -33,14 +33,16 @@ public class ChatServerThread extends Thread implements Runnable{
                     msg = (Message) dataIn.readObject();
                     dataQueue.addLast(msg);
                     handleData();
-                } catch (SocketException se){
+                } catch (EOFException eofEx){
+                    //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     server.removeConnection(clientSocket);
-                    if (server.getConnectedClients().size() == 0){
-                        break;
-                    }
-//                    se.printStackTrace();
-//                    server.removeConnection(clientSocket);
+                    break;
+                } catch (SocketException se){
+                    //Handles error when client stops program
+                    System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+                    server.removeConnection(clientSocket);
+                    break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
