@@ -1,14 +1,18 @@
 import java.net.*;
 import java.io.*;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class ChatServer {
 
 //    private final static ChatServer server = new ChatServer();
     private final int PORT = 1234;
     private boolean running = true;
-    private Hashtable connectedClients = new Hashtable();
+    private Map<Socket, ObjectOutputStream> connectedClients = new HashMap<>();
+//    private Hashtable connectedClients = new Hashtable();
 
     ChatServer() {
         try {
@@ -33,24 +37,35 @@ public class ChatServer {
         this.connectedClients.putIfAbsent(socket, outputStream);
     }
 
-    Hashtable getConnectedClients(){
+    Map getConnectedClients(){
         return this.connectedClients;
     }
 
-    Enumeration getOutputStreams(){
-        return connectedClients.elements();
-    }
+//    Enumeration getOutputStreams(){
+//        return connectedClients.elements();
+//    }
 
     void sendToAll(Message msg){
-        for (Enumeration e = getOutputStreams(); e.hasMoreElements(); ) {
-            // ... get the output stream ...
-            ObjectOutputStream dataOut = (ObjectOutputStream)e.nextElement();
-            // ... and send the message
-            try {
-                dataOut.writeObject(msg);
-            } catch( IOException ie ) { ie.printStackTrace(); }
-        }
+            Stream.of(connectedClients.values())
+                    .forEach(value -> {
+                        value.forEach(outputStream -> {
+                            try {
+                                outputStream.writeObject(msg);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    });
 
+
+//        for (Enumeration e = getOutputStreams(); e.hasMoreElements(); ) {
+//            // ... get the output stream ...
+//            ObjectOutputStream dataOut = (ObjectOutputStream)e.nextElement();
+//            // ... and send the message
+//            try {
+//                dataOut.writeObject(msg);
+//            } catch( IOException ie ) { ie.printStackTrace(); }
+//        }
     }
 
     void removeConnection(Socket socket){
