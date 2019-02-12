@@ -16,6 +16,11 @@ public class User implements Serializable {
         this.ID = UUID.randomUUID().toString();
         this.username = "anonymous";
     }
+    public User(String name) {
+        //this.activeRoom = "general";
+        this.ID = UUID.randomUUID().toString();
+        this.username = name;
+    }
 
     public String getUsername() {
         return this.username;
