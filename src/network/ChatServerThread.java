@@ -9,6 +9,7 @@ public class ChatServerThread extends Thread implements Runnable {
     private ChatServer server;
     private boolean running = true;
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
+    private User currentUser;
 
     ChatServerThread(Socket clientSocket, ChatServer server) {
         super("ServerThread");
@@ -16,6 +17,10 @@ public class ChatServerThread extends Thread implements Runnable {
         //TODO: Add setSoTimeout()
         this.server = server;
         this.start();
+
+        Thread startHandleData = new Thread(this::handleData);
+        startHandleData.setDaemon(true);
+        startHandleData.start();
 
     }
 
@@ -30,11 +35,8 @@ public class ChatServerThread extends Thread implements Runnable {
             server.addConnectedClient(clientSocket, dataOut);
             System.out.println("Connected Clients: " + server.getConnectedClients().size());
             while (running) {
-                Message msg = null;
                 try {
-                    msg = (Message) dataIn.readObject();
-                    dataQueue.addLast(msg);
-                    handleData();
+                    dataQueue.addLast(dataIn.readObject());
                 } catch (SocketException se) {
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     server.removeConnection(clientSocket);
@@ -57,10 +59,32 @@ public class ChatServerThread extends Thread implements Runnable {
     }
 
     void handleData() {
-        Message msg = (Message) dataQueue.poll();
-        if (msg instanceof Message && msg.GetToAll()) {
-            System.out.println("Debug: " + msg.getTimestamp() + " | " + msg.getSender().substring(1) + ": " + msg.getMsg());
-            server.sendToAll(msg);
+        //Checks if first object in dataQueue is not null
+        while (true) {
+            if (dataQueue.size() > 0) {
+                if (dataQueue.getFirst() instanceof Message) {
+                    System.out.println("data is Message");
+
+                    Message msg = (Message) dataQueue.poll();
+                    if(!this.currentUser.getUsername().equals(msg.getUser().getUsername()))
+                        this.currentUser.setUsername(msg.getUser().getUsername());
+
+                    System.out.println("Debug: " + msg.getTimestamp() + " | " + msg.getSender().substring(1) + " " + currentUser.getUsername() + ": " + msg.getMsg());
+
+                    server.sendToAll(msg);
+                } else if (dataQueue.getFirst() instanceof User) {
+                    System.out.println("data is User");
+
+                    this.currentUser = (User) dataQueue.poll();
+                    System.out.println("UserName: " + currentUser.getUsername());
+                } else {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }

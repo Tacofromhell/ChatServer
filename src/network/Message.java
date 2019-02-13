@@ -6,7 +6,7 @@ import java.net.SocketAddress;
 import java.time.LocalTime;
 
 public class Message implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8119880995263638779L;
 
     //    private transient Socket sender;
     private String sender;
@@ -32,6 +32,10 @@ public class Message implements Serializable {
 
     String getSender() {
         return this.sender;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     String getMsg() {
