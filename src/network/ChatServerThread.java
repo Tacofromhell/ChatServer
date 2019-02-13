@@ -9,7 +9,7 @@ public class ChatServerThread extends Thread implements Runnable {
     private ChatServer server;
     private boolean running = true;
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
-    private User currentUser;
+    private User currentUser = new User();
 
     ChatServerThread(Socket clientSocket, ChatServer server) {
         super("ServerThread");
@@ -25,33 +25,29 @@ public class ChatServerThread extends Thread implements Runnable {
     }
 
     public void run() {
-        try {
-//            InputStream dataIn = new DataInputStream(clientSocket.getInputStream());
+        try (ObjectInputStream dataIn = new ObjectInputStream(clientSocket.getInputStream());
+             ObjectOutputStream dataOut = new ObjectOutputStream(clientSocket.getOutputStream())
+            ){
+
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-
-            ObjectInputStream dataIn = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
-
             server.addConnectedClient(clientSocket, dataOut);
             System.out.println("Connected Clients: " + server.getConnectedClients().size());
             while (running) {
                 try {
                     dataQueue.addLast(dataIn.readObject());
-                } catch (SocketException se) {
+                } catch (EOFException eofEx){
+                    //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     server.removeConnection(clientSocket);
-                    if (server.getConnectedClients().size() == 0) {
-                        break;
-                    }
-//                    se.printStackTrace();
-//                    server.removeConnection(clientSocket);
+                    break;
+                } catch (SocketException se){
+                    //Handles error when client stops program
+                    System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+                    server.removeConnection(clientSocket);
+                    break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                //TODO: Close ObjectOutputStream and ObjectInputStream?
-//                dataIn.close();
-//                dataOut.close();
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,7 +55,7 @@ public class ChatServerThread extends Thread implements Runnable {
     }
 
     void handleData() {
-        //Checks if first object in dataQueue is not null
+        //Checks if dataQueue has anything to handle else sleep
         while (true) {
             if (dataQueue.size() > 0) {
                 if (dataQueue.getFirst() instanceof Message) {
@@ -69,20 +65,19 @@ public class ChatServerThread extends Thread implements Runnable {
                     if(!this.currentUser.getUsername().equals(msg.getUser().getUsername()))
                         this.currentUser.setUsername(msg.getUser().getUsername());
 
-                    System.out.println("Debug: " + msg.getTimestamp() + " | " + msg.getSender().substring(1) + " " + currentUser.getUsername() + ": " + msg.getMsg());
+                    System.out.println("Debug: " + msg.getTimestamp() + " | " + currentUser.getUsername() + ": " + msg.getMsg());
 
                     server.sendToAll(msg);
                 } else if (dataQueue.getFirst() instanceof User) {
                     System.out.println("data is User");
-
                     this.currentUser = (User) dataQueue.poll();
                     System.out.println("UserName: " + currentUser.getUsername());
-                } else {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                }
+            } else {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
