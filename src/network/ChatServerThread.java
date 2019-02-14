@@ -30,20 +30,23 @@ public class ChatServerThread extends Thread implements Runnable {
             ){
 
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-            server.addConnectedClient(clientSocket, dataOut);
+            server.addConnectedClient(currentUser, dataOut);
             System.out.println("Connected Clients: " + server.getConnectedClients().size());
+            server.sendToAll(server.getListOfConnectedClients());
             while (running) {
                 try {
                     dataQueue.addLast(dataIn.readObject());
                 } catch (EOFException eofEx){
                     //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
-                    server.removeConnection(clientSocket);
+                    server.removeConnection(currentUser, clientSocket);
+                    userUpdate();
                     break;
                 } catch (SocketException se){
                     //Handles error when client stops program
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
-                    server.removeConnection(clientSocket);
+                    server.removeConnection(currentUser, clientSocket);
+                    userUpdate();
                     break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -62,7 +65,7 @@ public class ChatServerThread extends Thread implements Runnable {
                     System.out.println("data is Message");
 
                     Message msg = (Message) dataQueue.poll();
-                    if(!this.currentUser.getUsername().equals(msg.getUser().getUsername()))
+                    if (!this.currentUser.getUsername().equals(msg.getUser().getUsername()))
                         this.currentUser.setUsername(msg.getUser().getUsername());
 
                     System.out.println("Debug: " + msg.getTimestamp() + " | " + currentUser.getUsername() + ": " + msg.getMsg());
@@ -81,5 +84,8 @@ public class ChatServerThread extends Thread implements Runnable {
                 }
             }
         }
+    }
+        void userUpdate() {
+        server.sendToAll(server.getListOfConnectedClients());
     }
 }
