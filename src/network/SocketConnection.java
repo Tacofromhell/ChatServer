@@ -4,14 +4,14 @@ import java.net.*;
 import java.io.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class ChatServerThread extends Thread implements Runnable {
+public class SocketConnection extends Thread implements Runnable {
     private Socket clientSocket;
     private ChatServer server;
     private boolean running = true;
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
-    private User currentUser = new User();
+    private User socketUser = new User();
 
-    ChatServerThread(Socket clientSocket, ChatServer server) {
+    SocketConnection(Socket clientSocket, ChatServer server) {
         super("ServerThread");
         this.clientSocket = clientSocket;
         //TODO: Add setSoTimeout()
@@ -21,7 +21,6 @@ public class ChatServerThread extends Thread implements Runnable {
         Thread startHandleData = new Thread(this::handleData);
         startHandleData.setDaemon(true);
         startHandleData.start();
-
     }
 
     public void run() {
@@ -62,16 +61,16 @@ public class ChatServerThread extends Thread implements Runnable {
                     System.out.println("data is Message");
 
                     Message msg = (Message) dataQueue.poll();
-                    if(!this.currentUser.getUsername().equals(msg.getUser().getUsername()))
-                        this.currentUser.setUsername(msg.getUser().getUsername());
+                    if(!this.socketUser.getUsername().equals(msg.getUser().getUsername()))
+                        this.socketUser.setUsername(msg.getUser().getUsername());
 
-                    System.out.println("Debug: " + msg.getTimestamp() + " | " + currentUser.getUsername() + ": " + msg.getMsg());
+                    System.out.println("Debug: " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
                     server.sendToAll(msg);
                 } else if (dataQueue.getFirst() instanceof User) {
                     System.out.println("data is User");
-                    this.currentUser = (User) dataQueue.poll();
-                    System.out.println("UserName: " + currentUser.getUsername());
+                    this.socketUser = (User) dataQueue.poll();
+                    System.out.println("UserName: " + socketUser.getUsername());
                 }
             } else {
                 try {
