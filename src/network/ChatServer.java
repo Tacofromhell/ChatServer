@@ -2,6 +2,7 @@ package network;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -12,16 +13,16 @@ public class ChatServer {
     private final int PORT = 1234;
     private boolean running = true;
     private Map<Socket, ObjectOutputStream> connectedClients = new HashMap<>();
-    private LinkedBlockingDeque<Room> rooms = new LinkedBlockingDeque<>();
-
+    private ArrayList<Room> rooms = new ArrayList<>();
     public ChatServer() {
         try {
+
             ServerSocket serverSocket = new ServerSocket(PORT);
 
             System.out.println("Starting server");
 
             // adds default room
-            rooms.addFirst(new Room("general", 0));
+            rooms.add(new Room("general", 0));
 
             // TODO: find a way to store connection in a thread pool
             while (running) {
@@ -35,12 +36,12 @@ public class ChatServer {
         }
     }
 
-    public LinkedBlockingDeque<Room> getRooms() {
+    public ArrayList<Room> getRooms() {
         return rooms;
     }
 
-    public void addRoom(Room room){
-        rooms.addLast(room);
+    public synchronized void addRoom(Room room){
+        rooms.add(room);
     }
 
     ChatServer get() {

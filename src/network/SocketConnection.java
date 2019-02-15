@@ -17,7 +17,7 @@ public class SocketConnection extends Thread implements Runnable {
         //TODO: Add setSoTimeout()
         this.server = server;
         this.start();
-
+        sendDataToClient(server.getRooms());
         Thread startHandleData = new Thread(this::handleData);
         startHandleData.setDaemon(true);
         startHandleData.start();
@@ -48,6 +48,14 @@ public class SocketConnection extends Thread implements Runnable {
                     e.printStackTrace();
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    void sendDataToClient(Object object){
+        try(ObjectOutputStream dataOut = new ObjectOutputStream(clientSocket.getOutputStream())
+        ) {
+            dataOut.writeObject(object);
         } catch (IOException e) {
             e.printStackTrace();
         }
