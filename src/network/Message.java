@@ -12,14 +12,16 @@ public class Message implements Serializable {
     private String sender;
     private transient Socket reviever;
     private String msg;
+    private String room;
     private LocalTime timestamp;
     private boolean toAll = true;
     private User user;
 
-    public Message(Socket sender, String msg, User user) {
+    public Message(Socket sender, String msg, User user, String room) {
         this.sender = sender.getLocalSocketAddress().toString();
         this.user = user;
         this.msg = msg;
+        this.room = room;
         this.timestamp = LocalTime.now();
     }
 
@@ -28,6 +30,10 @@ public class Message implements Serializable {
         this.reviever = reviever;
         this.msg = msg;
         this.timestamp = LocalTime.now();
+    }
+
+    public String getRoom() {
+        return room;
     }
 
     String getSender() {

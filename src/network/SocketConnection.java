@@ -2,16 +2,19 @@ package network;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class ChatServerThread extends Thread implements Runnable {
+public class SocketConnection extends Thread implements Runnable {
     private Socket clientSocket;
+    private ObjectOutputStream dataOut;
+    private ObjectInputStream dataIn;
     private ChatServer server;
     private boolean running = true;
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
-    private User currentUser = new User();
+    private User socketUser;
 
-    ChatServerThread(Socket clientSocket, ChatServer server) {
+    SocketConnection(Socket clientSocket, ChatServer server) {
         super("ServerThread");
         this.clientSocket = clientSocket;
         //TODO: Add setSoTimeout()
@@ -25,9 +28,13 @@ public class ChatServerThread extends Thread implements Runnable {
     }
 
     public void run() {
-        try (ObjectInputStream dataIn = new ObjectInputStream(clientSocket.getInputStream());
-             ObjectOutputStream dataOut = new ObjectOutputStream(clientSocket.getOutputStream())
-            ){
+        try {
+            dataIn = new ObjectInputStream(clientSocket.getInputStream());
+            dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
+
+            socketUser = new User(dataOut);
+            // add user to general room
+            server.getRooms().get(0).addUserToRoom(socketUser);
 
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
             server.addConnectedClient(clientSocket, dataOut);
@@ -35,12 +42,12 @@ public class ChatServerThread extends Thread implements Runnable {
             while (running) {
                 try {
                     dataQueue.addLast(dataIn.readObject());
-                } catch (EOFException eofEx){
+                } catch (EOFException eofEx) {
                     //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     server.removeConnection(clientSocket);
                     break;
-                } catch (SocketException se){
+                } catch (SocketException se) {
                     //Handles error when client stops program
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     server.removeConnection(clientSocket);
@@ -58,20 +65,36 @@ public class ChatServerThread extends Thread implements Runnable {
         //Checks if dataQueue has anything to handle else sleep
         while (true) {
             if (dataQueue.size() > 0) {
-                if (dataQueue.getFirst() instanceof Message) {
+                Object data = dataQueue.poll();
+                if (data instanceof Message) {
                     System.out.println("data is Message");
 
-                    Message msg = (Message) dataQueue.poll();
-                    if(!this.currentUser.getUsername().equals(msg.getUser().getUsername()))
-                        this.currentUser.setUsername(msg.getUser().getUsername());
+                    Message msg = (Message) data;
+                    if (!this.socketUser.getUsername().equals(msg.getUser().getUsername()))
+                        this.socketUser.setUsername(msg.getUser().getUsername());
 
-                    System.out.println("Debug: " + msg.getTimestamp() + " | " + currentUser.getUsername() + ": " + msg.getMsg());
+                    System.out.println("Debug: " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
-                    server.sendToAll(msg);
-                } else if (dataQueue.getFirst() instanceof User) {
+                    server.broadcastToRoom("general", msg);
+
+                    server.getRooms().forEach(room -> {
+                        if (room.getRoomName().equals(msg.getRoom())) {
+                            room.addMessageToRoom(msg);
+                        }
+                    });
+
+                } else if (data instanceof User) {
                     System.out.println("data is User");
-                    this.currentUser = (User) dataQueue.poll();
-                    System.out.println("UserName: " + currentUser.getUsername());
+                    this.socketUser = (User) data;
+                    System.out.println("UserName: " + socketUser.getUsername());
+
+                    // set outputStream in user
+//                    socketUser.setDataOut(dataOut);
+
+                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
+                    joinedRooms.forEach(room -> System.out.println(room));
+
+                    sendToClient(server.getRooms().get(0));
                 }
             } else {
                 try {
@@ -80,6 +103,14 @@ public class ChatServerThread extends Thread implements Runnable {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    private void sendToClient(Object object) {
+        try {
+            dataOut.writeObject(object);
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
     }
 }
