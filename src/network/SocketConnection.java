@@ -75,7 +75,7 @@ public class SocketConnection extends Thread implements Runnable {
 
                     System.out.println("Debug: " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
-                    server.broadcastToRoom("general", msg);
+                    server.broadcastToRoom(msg.getRoom(), msg);
 
                     server.getRooms().forEach(room -> {
                         if (room.getRoomName().equals(msg.getRoom())) {

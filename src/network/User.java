@@ -14,7 +14,7 @@ public class User implements Serializable {
 
     private String ID;
     private String username;
-    private ObjectOutputStream dataOut;
+    private transient ObjectOutputStream dataOut;
     private ArrayList<String> joinedRooms = new ArrayList<>();
 //    private Room activeRoom;
 

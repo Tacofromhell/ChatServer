@@ -53,7 +53,7 @@ public class ChatServer {
         return this.connectedClients;
     }
 
-    void sendToAll(Message msg) {
+    void broadcastToAll(Message msg) {
         Stream.of(connectedClients.values())
                 .forEach(value ->
                         value.forEach(outputStream -> {
