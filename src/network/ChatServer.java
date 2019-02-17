@@ -5,7 +5,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Stream;
 
 public class ChatServer {
@@ -14,15 +13,12 @@ public class ChatServer {
     private boolean running = true;
     private Map<Socket, ObjectOutputStream> connectedClients = new HashMap<>();
     private ArrayList<Room> rooms = new ArrayList<>();
+
     public ChatServer() {
+        System.out.println("Starting server");
+        addRoom(new Room("general", 0));
         try {
-
             ServerSocket serverSocket = new ServerSocket(PORT);
-
-            System.out.println("Starting server");
-
-            // adds default room
-            rooms.add(new Room("general", 0));
 
             // TODO: find a way to store connection in a thread pool
             while (running) {
@@ -34,18 +30,19 @@ public class ChatServer {
                     + PORT + " or listening for a connection");
             System.out.println(e.getMessage());
         }
+
+    }
+
+    ChatServer get() {
+        return this;
     }
 
     public ArrayList<Room> getRooms() {
         return rooms;
     }
 
-    public synchronized void addRoom(Room room){
+    public void addRoom(Room room) {
         rooms.add(room);
-    }
-
-    ChatServer get() {
-        return this;
     }
 
     void addConnectedClient(Socket socket, ObjectOutputStream outputStream) {
@@ -56,7 +53,7 @@ public class ChatServer {
         return this.connectedClients;
     }
 
-    void sendToAll(Message msg) {
+    void broadcastToAll(Message msg) {
         Stream.of(connectedClients.values())
                 .forEach(value ->
                         value.forEach(outputStream -> {
@@ -67,6 +64,20 @@ public class ChatServer {
                             }
                         })
                 );
+    }
+
+    void broadcastToRoom(String roomName, Message msg) {
+        rooms.forEach(room -> {
+            if (room.getRoomName().equals(roomName)) {
+                room.getUsers().forEach(user -> {
+                    try {
+                        user.getDataOut().writeObject(msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
     }
 
     void removeConnection(Socket socket) {
