@@ -52,7 +52,7 @@ public class Message implements Serializable {
         String hour = this.timestamp.getHour() < 10 ? "0" + this.timestamp.getHour() : "" + this.timestamp.getHour();
         String minute = this.timestamp.getMinute() < 10 ? "0" + this.timestamp.getMinute() : "" + this.timestamp.getMinute();
         String second = this.timestamp.getSecond() < 10 ? "0" + this.timestamp.getSecond() : "" + this.timestamp.getSecond();
-        return hour + "." + minute + "." + second;
+        return hour + "." + minute;
     }
 
     Boolean GetToAll() {

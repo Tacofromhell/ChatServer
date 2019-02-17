@@ -67,13 +67,12 @@ public class SocketConnection extends Thread implements Runnable {
             if (dataQueue.size() > 0) {
                 Object data = dataQueue.poll();
                 if (data instanceof Message) {
-                    System.out.println("data is Message");
 
                     Message msg = (Message) data;
                     if (!this.socketUser.getUsername().equals(msg.getUser().getUsername()))
                         this.socketUser.setUsername(msg.getUser().getUsername());
 
-                    System.out.println("Debug: " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
+                    System.out.println(msg.getRoom() + ": " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
                     server.broadcastToRoom(msg.getRoom(), msg);
 
@@ -84,15 +83,13 @@ public class SocketConnection extends Thread implements Runnable {
                     });
 
                 } else if (data instanceof User) {
-                    System.out.println("data is User");
                     this.socketUser = (User) data;
                     System.out.println("UserName: " + socketUser.getUsername());
 
                     // set outputStream in user
 //                    socketUser.setDataOut(dataOut);
 
-                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
-                    joinedRooms.forEach(room -> System.out.println(room));
+//                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
 
                     sendToClient(server.getRooms().get(0));
                 }
