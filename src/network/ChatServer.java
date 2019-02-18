@@ -69,8 +69,11 @@ public class ChatServer {
     void broadcastToRoom(String roomName, Message msg) {
         rooms.forEach(room -> {
             if (room.getRoomName().equals(roomName)) {
-                room.getUsers().forEach(user -> {
+                room.getUsers().stream()
+                        .filter(user -> user.getOnlineStatus() == true)
+                        .forEach(user -> {
                     try {
+                        System.out.println(user.getDataOut());
                         user.getDataOut().writeObject(msg);
                     } catch (IOException e) {
                         e.printStackTrace();

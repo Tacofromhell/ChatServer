@@ -15,6 +15,7 @@ public class User implements Serializable {
     private String ID;
     private String username;
     private transient ObjectOutputStream dataOut;
+    private boolean onlineStatus;
     private ArrayList<String> joinedRooms = new ArrayList<>();
 //    private Room activeRoom;
 
@@ -23,6 +24,7 @@ public class User implements Serializable {
         this.ID = UUID.randomUUID().toString();
         this.username = "anon";
         this.dataOut = dataOut;
+        this.onlineStatus = true;
         joinedRooms.add("general");
     }
 
@@ -61,4 +63,11 @@ public class User implements Serializable {
         this.username = username;
     }
 
+    public void setOnlineStatus(boolean onlineStatus){
+        this.onlineStatus = onlineStatus;
+    }
+
+    public boolean getOnlineStatus(){
+        return this.onlineStatus;
+    }
 }//class end

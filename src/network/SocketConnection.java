@@ -39,17 +39,20 @@ public class SocketConnection extends Thread implements Runnable {
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
             server.addConnectedClient(clientSocket, dataOut);
             System.out.println("Connected Clients: " + server.getConnectedClients().size());
+
             while (running) {
                 try {
                     dataQueue.addLast(dataIn.readObject());
                 } catch (EOFException eofEx) {
                     //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+                    socketUser.setOnlineStatus(false);
                     server.removeConnection(clientSocket);
                     break;
                 } catch (SocketException se) {
                     //Handles error when client stops program
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+                    socketUser.setOnlineStatus(false);
                     server.removeConnection(clientSocket);
                     break;
                 } catch (ClassNotFoundException e) {
