@@ -91,13 +91,12 @@ public class SocketConnection extends Thread implements Runnable {
                 } else if (data instanceof User) {
                     this.socketUser = (User) data;
                     System.out.println("UserName: " + socketUser.getUsername());
-
                     // set outputStream in user
 //                    socketUser.setDataOut(dataOut);
 
 //                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
 
-                    sendToClient(server.getRooms().get(0));
+
                 }
             } else {
                 try {
