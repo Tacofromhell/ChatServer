@@ -33,12 +33,14 @@ public class SocketConnection extends Thread implements Runnable {
             dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
 
             socketUser = new User(dataOut);
+            socketUser.getDataOut().writeObject(socketUser);
             // add user to general room
             server.getRooms().get(0).addUserToRoom(socketUser);
-
+            server.addUser(socketUser);
+            System.out.println(socketUser + " " + socketUser.getID());
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-            server.addConnectedClient(clientSocket, dataOut);
-            System.out.println("Connected Clients: " + server.getConnectedClients().size());
+            System.out.println("Connected Clients: " + server.getUsers().stream().filter(user -> user.getOnlineStatus() == true).count());
+
 
             while (running) {
                 try {
@@ -47,13 +49,13 @@ public class SocketConnection extends Thread implements Runnable {
                     //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     socketUser.setOnlineStatus(false);
-                    server.removeConnection(clientSocket);
+                    server.removeConnection(clientSocket, socketUser);
                     break;
                 } catch (SocketException se) {
                     //Handles error when client stops program
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
                     socketUser.setOnlineStatus(false);
-                    server.removeConnection(clientSocket);
+                    server.removeConnection(clientSocket, socketUser);
                     break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();

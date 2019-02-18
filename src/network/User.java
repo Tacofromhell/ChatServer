@@ -26,6 +26,7 @@ public class User implements Serializable {
         this.dataOut = dataOut;
         this.onlineStatus = true;
         joinedRooms.add("general");
+
     }
 
     public User(String name) {
@@ -53,6 +54,10 @@ public class User implements Serializable {
 
     public User getUser() {
         return this;
+    }
+
+    public String getID(){
+        return this.ID;
     }
 
     public String getUsername() {
