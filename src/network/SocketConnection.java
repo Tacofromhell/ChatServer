@@ -35,6 +35,7 @@ public class SocketConnection extends Thread implements Runnable {
             socketUser = new User(dataOut);
             // add user to general room
             server.getRooms().get(0).addUserToRoom(socketUser);
+            server.getRooms().get(1).addUserToRoom(socketUser);
 
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
             server.addConnectedClient(clientSocket, dataOut);
@@ -86,12 +87,11 @@ public class SocketConnection extends Thread implements Runnable {
                     this.socketUser = (User) data;
                     System.out.println("UserName: " + socketUser.getUsername());
 
-                    // set outputStream in user
-//                    socketUser.setDataOut(dataOut);
-
 //                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
 
                     sendToClient(server.getRooms().get(0));
+
+                    sendToClient(server.getRooms().get(1));
                 }
             } else {
                 try {

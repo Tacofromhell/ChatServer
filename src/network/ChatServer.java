@@ -17,6 +17,7 @@ public class ChatServer {
     public ChatServer() {
         System.out.println("Starting server");
         addRoom(new Room("general", 0));
+        addRoom(new Room("other room", 0));
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);
 
