@@ -33,25 +33,33 @@ public class SocketConnection extends Thread implements Runnable {
             dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
 
             socketUser = new User(dataOut);
+            socketUser.getDataOut().reset();
+            socketUser.getDataOut().writeObject(socketUser);
             // add user to general room
             server.getRooms().get(0).addUserToRoom(socketUser);
             server.getRooms().get(1).addUserToRoom(socketUser);
 
+            server.addUser(socketUser);
+            sendToClient(server.getRooms().get(0));
+            System.out.println(socketUser + " " + socketUser.getID());
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-            server.addConnectedClient(clientSocket, dataOut);
-            System.out.println("Connected Clients: " + server.getConnectedClients().size());
+            System.out.println("Connected Clients: " + server.getUsers().stream().filter(user -> user.getOnlineStatus() == true).count());
+
+
             while (running) {
                 try {
                     dataQueue.addLast(dataIn.readObject());
                 } catch (EOFException eofEx) {
                     //Handles error when client closes socket
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
-                    server.removeConnection(clientSocket);
+                    socketUser.setOnlineStatus(false);
+                    server.removeConnection(clientSocket, socketUser);
                     break;
                 } catch (SocketException se) {
                     //Handles error when client stops program
                     System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
-                    server.removeConnection(clientSocket);
+                    socketUser.setOnlineStatus(false);
+                    server.removeConnection(clientSocket, socketUser);
                     break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -85,6 +93,7 @@ public class SocketConnection extends Thread implements Runnable {
 
                 } else if (data instanceof User) {
                     this.socketUser = (User) data;
+                    server.getRooms().forEach(room -> room.updateUser(this.socketUser));
                     System.out.println("UserName: " + socketUser.getUsername());
 
 //                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
@@ -92,6 +101,9 @@ public class SocketConnection extends Thread implements Runnable {
                     sendToClient(server.getRooms().get(0));
 
                     sendToClient(server.getRooms().get(1));
+                } else if(((String) data).startsWith("update")){
+                    System.out.println("Updating");
+                    server.broadcastToAll(server.getRooms());
                 }
             } else {
                 try {

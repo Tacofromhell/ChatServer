@@ -2,16 +2,15 @@ package network;
 
 import java.net.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChatServer {
 
     private final int PORT = 1234;
     private boolean running = true;
-    private Map<Socket, ObjectOutputStream> connectedClients = new HashMap<>();
+    private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> rooms = new ArrayList<>();
 
     public ChatServer() {
@@ -46,31 +45,25 @@ public class ChatServer {
         rooms.add(room);
     }
 
-    void addConnectedClient(Socket socket, ObjectOutputStream outputStream) {
-        this.connectedClients.putIfAbsent(socket, outputStream);
-    }
-
-    Map getConnectedClients() {
-        return this.connectedClients;
-    }
-
-    void broadcastToAll(Message msg) {
-        Stream.of(connectedClients.values())
-                .forEach(value ->
-                        value.forEach(outputStream -> {
-                            try {
-                                outputStream.writeObject(msg);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        })
-                );
+    void broadcastToAll(Object o) {
+        Stream.of(allUsers)
+                .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
+                .forEach(user -> user.forEach(outputStream -> {
+                    try {
+                        outputStream.getDataOut().reset();
+                        outputStream.getDataOut().writeObject(o);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }));
     }
 
     void broadcastToRoom(String roomName, Message msg) {
         rooms.forEach(room -> {
             if (room.getRoomName().equals(roomName)) {
-                room.getUsers().forEach(user -> {
+                room.getUsers().stream()
+                        .filter(user -> user.getOnlineStatus() == true)
+                        .forEach(user -> {
                     try {
                         user.getDataOut().writeObject(msg);
                     } catch (IOException e) {
@@ -81,12 +74,36 @@ public class ChatServer {
         });
     }
 
-    void removeConnection(Socket socket) {
+    void addUser(User user){
+        allUsers.add(user);
+    }
+
+    void removeUser(User user){
+        allUsers.remove(user);
+    }
+
+    User getUser(String userID){
+        for(User user : allUsers){
+            if(user.getID().equals(userID)){
+                return user;
+            }
+        }
+        return null;
+    }
+
+    ArrayList<User> getUsers(){
+        return allUsers;
+    }
+    void removeConnection(Socket socket, User user) {
         try {
             socket.close();
+            getUser(user.getID()).setOnlineStatus(false);
             System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
-            connectedClients.remove(socket);
-            System.out.println("Connected clients: " + connectedClients.size());
+            System.out.println("Connected clients: " +
+                    allUsers.stream().filter(u ->
+                    u.getOnlineStatus() == true)
+                    .count());
+
         } catch (IOException e) {
             e.printStackTrace();
         }

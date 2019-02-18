@@ -7,6 +7,7 @@ import java.net.IDN;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.UUID;
 
 public class User implements Serializable {
@@ -15,15 +16,18 @@ public class User implements Serializable {
     private String ID;
     private String username;
     private transient ObjectOutputStream dataOut;
+    private boolean onlineStatus;
     private ArrayList<String> joinedRooms = new ArrayList<>();
 //    private Room activeRoom;
 
     public User(ObjectOutputStream dataOut) {
         //this.activeRoom = "general";
         this.ID = UUID.randomUUID().toString();
-        this.username = "anon";
+        this.username = "anon"  + new Random().nextInt(1000);
         this.dataOut = dataOut;
+        this.onlineStatus = true;
         joinedRooms.add("general");
+
     }
 
     public User(String name) {
@@ -53,6 +57,10 @@ public class User implements Serializable {
         return this;
     }
 
+    public String getID(){
+        return this.ID;
+    }
+
     public String getUsername() {
         return this.username;
     }
@@ -61,4 +69,11 @@ public class User implements Serializable {
         this.username = username;
     }
 
+    public void setOnlineStatus(boolean onlineStatus){
+        this.onlineStatus = onlineStatus;
+    }
+
+    public boolean getOnlineStatus(){
+        return this.onlineStatus;
+    }
 }//class end
