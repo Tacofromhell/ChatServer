@@ -37,6 +37,7 @@ public class SocketConnection extends Thread implements Runnable {
             // add user to general room
             server.getRooms().get(0).addUserToRoom(socketUser);
             server.addUser(socketUser);
+            sendToClient(server.getRooms().get(0));
             System.out.println(socketUser + " " + socketUser.getID());
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
             System.out.println("Connected Clients: " + server.getUsers().stream().filter(user -> user.getOnlineStatus() == true).count());
