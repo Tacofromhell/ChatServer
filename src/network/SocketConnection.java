@@ -33,6 +33,7 @@ public class SocketConnection extends Thread implements Runnable {
             dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
 
             socketUser = new User(dataOut);
+            socketUser.getDataOut().reset();
             socketUser.getDataOut().writeObject(socketUser);
             // add user to general room
             server.getRooms().get(0).addUserToRoom(socketUser);
@@ -90,13 +91,16 @@ public class SocketConnection extends Thread implements Runnable {
 
                 } else if (data instanceof User) {
                     this.socketUser = (User) data;
+                    server.getRooms().forEach(room -> room.updateUser(this.socketUser));
                     System.out.println("UserName: " + socketUser.getUsername());
+
                     // set outputStream in user
 //                    socketUser.setDataOut(dataOut);
 
 //                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
-
-
+                } else if(((String) data).startsWith("update")){
+                    System.out.println("Updating");
+                    server.broadcastToAll(server.getRooms());
                 }
             } else {
                 try {

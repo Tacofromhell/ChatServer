@@ -44,11 +44,13 @@ public class ChatServer {
         rooms.add(room);
     }
 
-    void broadcastToAll(Message msg) {
+    void broadcastToAll(Object o) {
         Stream.of(allUsers)
+                .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
                 .forEach(user -> user.forEach(outputStream -> {
                     try {
-                        outputStream.getDataOut().writeObject(msg);
+                        outputStream.getDataOut().reset();
+                        outputStream.getDataOut().writeObject(o);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

@@ -1,6 +1,7 @@
 package network;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class Room implements Serializable {
@@ -9,7 +10,7 @@ public class Room implements Serializable {
     private String roomName;
     private int roomSize;
     private LinkedBlockingDeque<Message> messages = new LinkedBlockingDeque<>();
-    private LinkedBlockingDeque<User> users = new LinkedBlockingDeque<>();
+    private ArrayList<User> users = new ArrayList<>();
 
     public Room(String name, int roomSize) {
         this.roomName = name;
@@ -26,7 +27,7 @@ public class Room implements Serializable {
 
     public void addUserToRoom(User user) {
         if (users.size() < roomSize + 1)
-            users.addLast(user);
+            users.add(user);
         else
             System.err.println("Room: " + roomName + " is full");
     }
@@ -35,7 +36,15 @@ public class Room implements Serializable {
         return messages;
     }
 
-    public LinkedBlockingDeque<User> getUsers() {
+    public ArrayList<User> getUsers() {
         return users;
+    }
+
+    public void updateUser(User updatedUser){
+        users.forEach(user -> {
+            if(user.getID().equals(updatedUser.getID())){
+                user.setUsername(updatedUser.getUsername());
+            }
+        });
     }
 }
