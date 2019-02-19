@@ -81,8 +81,11 @@ public class SocketConnection extends Thread implements Runnable {
                         }
                     });
 
+                } else if (data instanceof User) {
+                    this.socketUser = (User) data;
+                    server.getRooms().forEach(room -> room.updateUser(this.socketUser));
+
                 } else if (((String) data).startsWith("connecting")) {
-//                    this.socketUser = (User) data;
                     server.getRooms().forEach(room -> room.updateUser(this.socketUser));
                     System.out.println("UserName: " + socketUser.getUsername());
 
