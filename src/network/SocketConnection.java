@@ -2,7 +2,6 @@ package network;
 
 import java.net.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class SocketConnection extends Thread implements Runnable {
@@ -24,7 +23,6 @@ public class SocketConnection extends Thread implements Runnable {
         Thread startHandleData = new Thread(this::handleData);
         startHandleData.setDaemon(true);
         startHandleData.start();
-
     }
 
     public void run() {
@@ -33,25 +31,25 @@ public class SocketConnection extends Thread implements Runnable {
             dataOut = new ObjectOutputStream(clientSocket.getOutputStream());
 
             socketUser = new User(dataOut);
+            socketUser.getDataOut().reset();
+            socketUser.getDataOut().writeObject(socketUser);
             // add user to general room
             server.getRooms().get(0).addUserToRoom(socketUser);
             server.getRooms().get(1).addUserToRoom(socketUser);
 
+            server.addUser(socketUser);
+            System.out.println(socketUser + " " + socketUser.getID());
             System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-            server.addConnectedClient(clientSocket, dataOut);
-            System.out.println("Connected Clients: " + server.getConnectedClients().size());
+            System.out.println("Connected Clients: " + server.getUsers().stream().filter(user -> user.getOnlineStatus() == true).count());
+
             while (running) {
                 try {
                     dataQueue.addLast(dataIn.readObject());
                 } catch (EOFException eofEx) {
-                    //Handles error when client closes socket
-                    System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
-                    server.removeConnection(clientSocket);
+                    handleDisconnect();
                     break;
                 } catch (SocketException se) {
-                    //Handles error when client stops program
-                    System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
-                    server.removeConnection(clientSocket);
+                    handleDisconnect();
                     break;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -83,8 +81,9 @@ public class SocketConnection extends Thread implements Runnable {
                         }
                     });
 
-                } else if (data instanceof User) {
-                    this.socketUser = (User) data;
+                } else if (((String) data).startsWith("connecting")) {
+//                    this.socketUser = (User) data;
+                    server.getRooms().forEach(room -> room.updateUser(this.socketUser));
                     System.out.println("UserName: " + socketUser.getUsername());
 
 //                    ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
@@ -92,6 +91,12 @@ public class SocketConnection extends Thread implements Runnable {
                     sendToClient(server.getRooms().get(0));
 
                     sendToClient(server.getRooms().get(1));
+
+                    System.out.println("Updating");
+                    server.broadcastToAll(server.getRooms());
+
+                } else if (((String) data).startsWith("update")) {
+                    updateUsers();
                 }
             } else {
                 try {
@@ -101,6 +106,20 @@ public class SocketConnection extends Thread implements Runnable {
                 }
             }
         }
+    }
+
+    private void updateUsers() {
+        System.out.println("Updating");
+        server.broadcastToAll(server.getRooms());
+    }
+
+    private void handleDisconnect() {
+        //Handles error when client stops program
+        System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+        socketUser.setOnlineStatus(false);
+        server.removeConnection(clientSocket, socketUser);
+
+        updateUsers();
     }
 
     private void sendToClient(Object object) {
