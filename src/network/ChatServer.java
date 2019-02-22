@@ -1,9 +1,12 @@
 package network;
 
+import data.Message;
+import data.Room;
+import data.User;
+
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChatServer {
@@ -94,6 +97,7 @@ public class ChatServer {
     ArrayList<User> getUsers(){
         return allUsers;
     }
+
     void removeConnection(Socket socket, User user) {
         try {
             socket.close();

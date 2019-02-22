@@ -1,5 +1,8 @@
 package network;
 
+import data.Message;
+import data.User;
+
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -71,7 +74,7 @@ public class SocketConnection extends Thread implements Runnable {
                     if (!this.socketUser.getUsername().equals(msg.getUser().getUsername()))
                         this.socketUser.setUsername(msg.getUser().getUsername());
 
-                    System.out.println(msg.getRoom() + ": " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
+//                    System.out.println(msg.getRoom() + ": " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
                     server.broadcastToRoom(msg.getRoom(), msg);
 

@@ -1,11 +1,7 @@
-package network;
+package data;
 
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.net.IDN;
-import java.net.Socket;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
