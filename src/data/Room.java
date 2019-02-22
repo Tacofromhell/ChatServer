@@ -1,4 +1,7 @@
-package network;
+package data;
+
+import data.Message;
+import data.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;

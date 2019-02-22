@@ -1,6 +1,7 @@
 package network;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class SocketStreamHelper {
@@ -17,7 +18,14 @@ public class SocketStreamHelper {
         }
     }
 
-    public static void recieveData(){
+    public static Object receiveData(ObjectInputStream in){
 
+        try {
+            return in.readObject();
+        }
+        catch (IOException e) { }
+        catch (ClassNotFoundException e) { }
+
+        return null;
     }
 }

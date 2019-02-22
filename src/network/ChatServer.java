@@ -1,5 +1,9 @@
 package network;
 
+import data.Message;
+import data.Room;
+import data.User;
+
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -11,13 +15,17 @@ public class ChatServer {
     private boolean running = true;
     private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> rooms = new ArrayList<>();
-
+    public static ChatServer singleton = new ChatServer();
 
     public ChatServer() {
         System.out.println("Starting server");
         addRoom(new Room("general", 0));
         addRoom(new Room("other room", 0));
         listeningOnClients();
+    }
+
+    public static ChatServer get() {
+        return singleton;
     }
 
     private void listeningOnClients() {
@@ -27,7 +35,7 @@ public class ChatServer {
             // TODO: find a way to store connection in a thread pool
             while (running) {
                 Socket clientSocket = serverSocket.accept();
-                new SocketConnection(clientSocket, this);
+                new SocketConnection(clientSocket);
             }
         } catch (IOException e) {
             System.out.println("Exception caught when trying to listen on port "
@@ -44,7 +52,7 @@ public class ChatServer {
         rooms.add(room);
     }
 
-    void broadcastToAll(Object o) {
+    public void broadcastToAll(Object o) {
         Stream.of(allUsers)
                 .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
                 .forEach(onlineUser -> onlineUser.forEach(userStream -> {
@@ -52,7 +60,7 @@ public class ChatServer {
                 }));
     }
 
-    void broadcastToRoom(String roomName, Message msg) {
+    public void broadcastToRoom(String roomName, Message msg) {
         rooms.forEach(room -> {
             if (room.getRoomName().equals(roomName)) {
                 room.getUsers().stream()
@@ -68,7 +76,7 @@ public class ChatServer {
         allUsers.add(user);
     }
 
-    void removeUser(User user) {
+    public void removeUser(User user) {
         allUsers.remove(user);
     }
 
@@ -85,7 +93,7 @@ public class ChatServer {
         return allUsers;
     }
 
-    void removeConnection(Socket socket, User user) {
+    public void removeConnection(Socket socket, User user) {
         try {
             socket.close();
             getUser(user.getID()).setOnlineStatus(false);

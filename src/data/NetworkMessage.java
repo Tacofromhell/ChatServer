@@ -1,4 +1,4 @@
-package network;
+package data;
 
 public abstract class NetworkMessage {
 
@@ -47,7 +47,6 @@ public abstract class NetworkMessage {
         public UserNameChange(String newName){
             this.newName = newName;
         }
-
     }
 
 }//END OF CLASS
