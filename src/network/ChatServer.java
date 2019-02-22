@@ -80,7 +80,7 @@ public class ChatServer {
         allUsers.remove(user);
     }
 
-    User getUser(String userID) {
+    public User getUser(String userID) {
         for (User user : allUsers) {
             if (user.getID().equals(userID)) {
                 return user;

@@ -1,6 +1,10 @@
 package data;
 
-public abstract class NetworkMessage {
+import java.io.Serializable;
+
+public abstract class NetworkMessage implements Serializable {
+
+    private static final long serialVersionUID = -4057760186023784992L;
 
     public static class ClientConnect{
         String userId;
@@ -44,8 +48,11 @@ public abstract class NetworkMessage {
 
     public static class UserNameChange{
         String newName;
-        public UserNameChange(String newName){
+        String userId;
+
+        public UserNameChange(String newName, String userId){
             this.newName = newName;
+            this.userId = userId;
         }
     }
 
