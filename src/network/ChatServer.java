@@ -3,7 +3,6 @@ package network;
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChatServer {
@@ -13,10 +12,15 @@ public class ChatServer {
     private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> rooms = new ArrayList<>();
 
+
     public ChatServer() {
         System.out.println("Starting server");
         addRoom(new Room("general", 0));
         addRoom(new Room("other room", 0));
+        listeningOnClients();
+    }
+
+    private void listeningOnClients() {
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);
 
@@ -30,11 +34,6 @@ public class ChatServer {
                     + PORT + " or listening for a connection");
             System.out.println(e.getMessage());
         }
-
-    }
-
-    ChatServer get() {
-        return this;
     }
 
     public ArrayList<Room> getRooms() {
@@ -48,13 +47,8 @@ public class ChatServer {
     void broadcastToAll(Object o) {
         Stream.of(allUsers)
                 .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
-                .forEach(user -> user.forEach(outputStream -> {
-                    try {
-                        outputStream.getDataOut().reset();
-                        outputStream.getDataOut().writeObject(o);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                .forEach(onlineUser -> onlineUser.forEach(userStream -> {
+                  SocketStreamHelper.sendData(o, userStream.getDataOut() );
                 }));
     }
 
@@ -64,36 +58,33 @@ public class ChatServer {
                 room.getUsers().stream()
                         .filter(user -> user.getOnlineStatus() == true)
                         .forEach(user -> {
-                    try {
-                        user.getDataOut().writeObject(msg);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+                            SocketStreamHelper.sendData(msg, user.getDataOut());
+                        });
             }
         });
     }
 
-    void addUser(User user){
+    void addUser(User user) {
         allUsers.add(user);
     }
 
-    void removeUser(User user){
+    void removeUser(User user) {
         allUsers.remove(user);
     }
 
-    User getUser(String userID){
-        for(User user : allUsers){
-            if(user.getID().equals(userID)){
+    User getUser(String userID) {
+        for (User user : allUsers) {
+            if (user.getID().equals(userID)) {
                 return user;
             }
         }
         return null;
     }
 
-    ArrayList<User> getUsers(){
+    ArrayList<User> getUsers() {
         return allUsers;
     }
+
     void removeConnection(Socket socket, User user) {
         try {
             socket.close();
@@ -101,8 +92,8 @@ public class ChatServer {
             System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
             System.out.println("Connected clients: " +
                     allUsers.stream().filter(u ->
-                    u.getOnlineStatus() == true)
-                    .count());
+                            u.getOnlineStatus() == true)
+                            .count());
 
         } catch (IOException e) {
             e.printStackTrace();
