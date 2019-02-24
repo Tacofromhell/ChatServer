@@ -29,6 +29,7 @@ public class Room implements Serializable {
     }
 
     public void addUserToRoom(User user) {
+        System.out.println(user + " added to " + this.roomName);
         if (users.size() < roomSize + 1)
             users.add(user);
         else

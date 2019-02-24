@@ -31,6 +31,12 @@ public class Message implements Serializable {
         this.timestamp = LocalTime.now();
     }
 
+    public Message(String sender, String room, String msg){
+        this.sender = sender;
+        this.room = room;
+        this.msg = msg;
+    }
+
     public String getRoom() {
         return room;
     }

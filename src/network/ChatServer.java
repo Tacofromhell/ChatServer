@@ -21,7 +21,12 @@ public class ChatServer {
         System.out.println("Starting server");
         addRoom(new Room("general", 0));
         addRoom(new Room("other room", 0));
-        listeningOnClients();
+
+        Thread listeningOnClientThread = new Thread(this::listeningOnClients);
+//        listeningOnClientThread.setDaemon(true);
+        listeningOnClientThread.start();
+//        listeningOnClients();
+
     }
 
     public static ChatServer get() {
@@ -56,7 +61,7 @@ public class ChatServer {
         Stream.of(allUsers)
                 .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
                 .forEach(onlineUser -> onlineUser.forEach(userStream -> {
-                  SocketStreamHelper.sendData(o, userStream.getDataOut() );
+                    SocketStreamHelper.sendData(o, userStream.getDataOut() );
                 }));
     }
 
@@ -64,10 +69,8 @@ public class ChatServer {
         rooms.forEach(room -> {
             if (room.getRoomName().equals(roomName)) {
                 room.getUsers().stream()
-                        .filter(user -> user.getOnlineStatus() == true)
-                        .forEach(user -> {
-                            SocketStreamHelper.sendData(msg, user.getDataOut());
-                        });
+                        .filter(User::getOnlineStatus)
+                        .forEach(user -> SocketStreamHelper.sendData(msg, user.getDataOut()));
             }
         });
     }
@@ -89,7 +92,7 @@ public class ChatServer {
         return null;
     }
 
-    ArrayList<User> getUsers() {
+    public ArrayList<User> getUsers() {
         return allUsers;
     }
 
@@ -99,9 +102,7 @@ public class ChatServer {
             getUser(user.getID()).setOnlineStatus(false);
             System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
             System.out.println("Connected clients: " +
-                    allUsers.stream().filter(u ->
-                            u.getOnlineStatus() == true)
-                            .count());
+                    allUsers.stream().filter(u -> u.getOnlineStatus()).count());
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -34,6 +34,8 @@ public class SocketConnection extends Thread implements Runnable {
         startHandleData.setDaemon(true);
         startHandleData.start();
 
+        System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
+
         SocketStreamHelper.sendData(socketUser, dataOut);
 
         // add user to general room
@@ -41,10 +43,8 @@ public class SocketConnection extends Thread implements Runnable {
         ChatServer.get().getRooms().get(1).addUserToRoom(socketUser);
 
         ChatServer.get().addUser(socketUser);
+        System.out.println("Connected Clients: " +  ChatServer.get().getUsers().stream().filter(User::getOnlineStatus).count());
 
-        System.out.println(socketUser + " " + socketUser.getID());
-        System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-        System.out.println("Connected Clients: " +  ChatServer.get().getUsers().stream().filter(user -> user.getOnlineStatus() == true).count());
 
         //Threadloop
         while (running) {
@@ -64,7 +64,7 @@ public class SocketConnection extends Thread implements Runnable {
         System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
         socketUser.setOnlineStatus(false);
         ChatServer.get().removeConnection(clientSocket, socketUser);
-        handleData.updateUsers();
+        handleData.handleClientDisconnect(socketUser);
     }
 
 }

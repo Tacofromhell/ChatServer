@@ -3,6 +3,7 @@ package data;
 import network.ChatServer;
 import network.SocketStreamHelper;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class HandleData implements Runnable {
@@ -51,20 +52,28 @@ public class HandleData implements Runnable {
     private void handleClientConnect() {
         ChatServer.get().getRooms().forEach(room -> room.updateUser(this.socketUser));
 
-        System.out.println("UserName: " + socketUser.getUsername());
+        System.out.println("NEW USER JOINED: " + socketUser.getID());
 
         //PLACEHOLDER: Get the rest of the users rooms:
         //ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
 
+        //Sending "general" and "other room" to connected client
         SocketStreamHelper.sendData(ChatServer.get().getRooms().get(0), socketUser.getDataOut());
-
         SocketStreamHelper.sendData(ChatServer.get().getRooms().get(1), socketUser.getDataOut());
 
-        System.out.println("Updating");
-        ChatServer.get().broadcastToAll(ChatServer.get().getRooms());
+        //Telling every other connected client that there is a new user in "general" and "other room"
+        for(User user : ChatServer.get().getUsers()){
+            if(!user.getID().equals(socketUser.getID()) && user.getOnlineStatus()){
+                System.out.println("SENDING EVENT NEW USER IN ROOM TO: " + user.getUsername());
+                SocketStreamHelper.sendData(new NetworkMessage.RoomJoin("general", socketUser), user.getDataOut());
+                SocketStreamHelper.sendData(new NetworkMessage.RoomJoin("other room", socketUser), user.getDataOut());
+            }
+        }
     }
 
-    private void handleClientDisconnect() {
+    public void handleClientDisconnect(User user) {
+        System.out.println(user.getUsername() + " disconnected");
+        ChatServer.get().broadcastToAll(new NetworkMessage.ClientDisconnect(user.getID()));
     }
 
     private void handleRoomCreate() {
@@ -74,13 +83,26 @@ public class HandleData implements Runnable {
     }
 
     private void handleRoomJoin() {
+
+
     }
 
     private void handleRoomLeave() {
     }
 
     private void handleUserNameChange(NetworkMessage.UserNameChange data) {
+        System.out.println(data.newName + " " + data.userId);
         ChatServer.get().getUser(data.userId).setUsername(data.newName);
+
+        //Går igenom alla gamla meddelanden på servern och ändrar username på dom
+        for(Room room : ChatServer.get().getRooms()){
+            for(Message message :room.getMessages()){
+                if(message.getUser().getID().equals(data.userId)){
+                    message.getUser().setUsername(data.newName);
+                }
+            }
+        }
+        ChatServer.get().broadcastToAll(data);
     }
 
     private void handleMessage(Object data) {
@@ -109,7 +131,9 @@ public class HandleData implements Runnable {
 
     public void updateUsers() {
         System.out.println("Updating users...");
-        ChatServer.get().broadcastToAll(ChatServer.get().getRooms());
+        for (Room room : ChatServer.get().getRooms()) {
+            ChatServer.get().broadcastToAll(room);
+        }
     }
 
 
