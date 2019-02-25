@@ -10,6 +10,7 @@ public class SocketStreamHelper {
 
     }
     public static void sendData (Object o, ObjectOutputStream out){
+        System.out.println("sendData");
         try {
             out.reset();
             out.writeObject(o);

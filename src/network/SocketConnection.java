@@ -1,6 +1,6 @@
 package network;
 
-import data.HandleData;
+import data.DataHandler;
 import data.User;
 
 import java.net.*;
@@ -12,7 +12,7 @@ public class SocketConnection extends Thread implements Runnable {
     private ObjectInputStream dataIn;
     private boolean running = true;
     private User socketUser;
-    private HandleData handleData;
+    private DataHandler dataHandler;
 
     SocketConnection(Socket clientSocket) {
         super("ServerThread");
@@ -28,11 +28,11 @@ public class SocketConnection extends Thread implements Runnable {
             e.printStackTrace();
         }
         socketUser = new User(dataOut);
-        handleData = new HandleData(socketUser);
+        dataHandler = new DataHandler(socketUser);
 
-        Thread startHandleData = new Thread(handleData);
-        startHandleData.setDaemon(true);
-        startHandleData.start();
+        Thread startdataHandler = new Thread(dataHandler);
+        startdataHandler.setDaemon(true);
+        startdataHandler.start();
 
         SocketStreamHelper.sendData(socketUser, dataOut);
 
@@ -54,7 +54,7 @@ public class SocketConnection extends Thread implements Runnable {
                 handleDisconnect();
                 break;
             } else {
-                handleData.addData(data);
+                dataHandler.addToQueue(data);
             }
         }
     }
@@ -64,7 +64,7 @@ public class SocketConnection extends Thread implements Runnable {
         System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
         socketUser.setOnlineStatus(false);
         ChatServer.get().removeConnection(clientSocket, socketUser);
-        handleData.updateUsers();
+        dataHandler.updateUsers();
     }
 
 }

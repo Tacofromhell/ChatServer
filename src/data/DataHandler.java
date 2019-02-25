@@ -5,12 +5,12 @@ import network.SocketStreamHelper;
 
 import java.util.concurrent.LinkedBlockingDeque;
 
-public class HandleData implements Runnable {
+public class DataHandler implements Runnable {
 
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
     private User socketUser;
 
-    public HandleData(User socketUser) {
+    public DataHandler(User socketUser) {
         this.socketUser = socketUser;
 
     }
@@ -32,8 +32,16 @@ public class HandleData implements Runnable {
                 } else if (data instanceof NetworkMessage.ClientConnect) {
                     handleClientConnect();
 
+                } else if (data instanceof NetworkMessage.RoomCreate) {
+
+                } else if (data instanceof NetworkMessage.RoomDelete) {
+
+                } else if (data instanceof NetworkMessage.RoomJoin) {
+
+                } else if (data instanceof NetworkMessage.RoomLeave) {
+
                 } else if (data instanceof NetworkMessage.UserNameChange) {
-                    handleUserNameChange((NetworkMessage.UserNameChange)data);
+                    handleUserNameChange((NetworkMessage.UserNameChange) data);
 
                 } else if (((String) data).startsWith("update")) {
                     updateUsers();
@@ -81,13 +89,17 @@ public class HandleData implements Runnable {
 
     private void handleUserNameChange(NetworkMessage.UserNameChange data) {
         ChatServer.get().getUser(data.userId).setUsername(data.newName);
+
+        // update users in all rooms
+        ChatServer.get().getRooms().forEach((nameID, room) ->
+                room.updateUser(socketUser));
+
+        // send updated user to all clients
+        ChatServer.get().broadcastToAll(data);
     }
 
     private void handleMessage(Object data) {
         Message msg = (Message) data;
-
-        if (!this.socketUser.getUsername().equals(msg.getUser().getUsername()))
-            this.socketUser.setUsername(msg.getUser().getUsername());
 
         System.out.println(msg.getRoom() + ": " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
@@ -103,7 +115,7 @@ public class HandleData implements Runnable {
     private void handleRoom() {
     }
 
-    public void addData(Object o) {
+    public void addToQueue(Object o) {
         dataQueue.addLast(o);
     }
 
