@@ -9,6 +9,7 @@ public class HandleData implements Runnable {
 
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
     private User socketUser;
+    private Serialization serialization;
 
     public HandleData(User socketUser) {
         this.socketUser = socketUser;
@@ -25,6 +26,7 @@ public class HandleData implements Runnable {
 
                 if (data instanceof Message) {
                     handleMessage(data);
+                    serialization.saveObjectToFile(data, "text.txt");
 
                 } else if (data instanceof User) {
                     System.err.println("User object received but method is deprecated");
