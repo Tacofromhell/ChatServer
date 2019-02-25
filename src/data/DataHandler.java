@@ -30,7 +30,7 @@ public class DataHandler implements Runnable {
                     System.err.println("User object received but method is deprecated");
 
                 } else if (data instanceof NetworkMessage.ClientConnect) {
-                    handleClientConnect();
+                    handleClientConnect((NetworkMessage.ClientConnect) data);
 
                 } else if (data instanceof NetworkMessage.RoomCreate) {
 
@@ -56,7 +56,10 @@ public class DataHandler implements Runnable {
         }
     }
 
-    private void handleClientConnect() {
+    private void handleClientConnect(NetworkMessage.ClientConnect data) {
+
+        System.out.println(data.userId);
+
         ChatServer.get().getRooms().forEach((roomID, room) -> room.updateUser(this.socketUser));
 
         System.out.println("UserName: " + socketUser.getUsername());
@@ -65,6 +68,8 @@ public class DataHandler implements Runnable {
         //ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
 
         SocketStreamHelper.sendData(ChatServer.get().getRooms().get("general"), socketUser.getDataOut());
+
+        System.out.println(ChatServer.get().getRooms().get("general"));
 
         SocketStreamHelper.sendData(ChatServer.get().getRooms().get("other room"), socketUser.getDataOut());
 

@@ -16,13 +16,14 @@ public class ChatServer {
     private boolean running = true;
     private CopyOnWriteArrayList<User> allUsers = new CopyOnWriteArrayList<>();
     private ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
-    public static ChatServer singleton = new ChatServer();
+    private final static ChatServer singleton = new ChatServer();
 
-    public ChatServer() {
+    private ChatServer() {
         System.out.println("Starting server");
         addRoom(new Room("general", 0));
         addRoom(new Room("other room", 0));
-        listeningOnClients();
+
+        new Thread(this::listeningOnClients).start();
     }
 
     public static ChatServer get() {
@@ -50,18 +51,17 @@ public class ChatServer {
     }
 
     public void addRoom(Room room) {
-        if(
-        rooms.contains(room.getRoomName())
-
-        )
-        rooms.putIfAbsent(room.getRoomName(), room);
+        if (rooms.contains(room.getRoomName()))
+            System.out.println(room.getRoomName() + " already exists");
+        else
+            rooms.putIfAbsent(room.getRoomName(), room);
     }
 
     public void broadcastToAll(Object o) {
         Stream.of(allUsers)
                 .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
                 .forEach(onlineUser -> onlineUser.forEach(userStream -> {
-                  SocketStreamHelper.sendData(o, userStream.getDataOut() );
+                    SocketStreamHelper.sendData(o, userStream.getDataOut());
                 }));
     }
 
