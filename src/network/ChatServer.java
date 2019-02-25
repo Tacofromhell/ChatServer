@@ -1,6 +1,5 @@
 package network;
 
-import data.Message;
 import data.Room;
 import data.User;
 
@@ -57,24 +56,20 @@ public class ChatServer {
             rooms.putIfAbsent(room.getRoomName(), room);
     }
 
-    public void broadcastToAll(Object o) {
+    public void broadcastToAll(Object data) {
         Stream.of(allUsers)
                 .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
                 .forEach(onlineUser -> onlineUser.forEach(userStream -> {
-                    SocketStreamHelper.sendData(o, userStream.getDataOut());
+                    SocketStreamHelper.sendData(data, userStream.getDataOut());
                 }));
     }
 
-    public void broadcastToRoom(String roomName, Message msg) {
-        rooms.forEach((roomID, room) -> {
-            if (roomID.equals(roomName)) {
-                room.getUsers().stream()
-                        .filter(user -> user.getOnlineStatus() == true)
-                        .forEach(user -> {
-                            SocketStreamHelper.sendData(msg, user.getDataOut());
-                        });
-            }
-        });
+    public void broadcastToRoom(String roomName, Object data) {
+        rooms.get(roomName).getUsers().stream()
+                .filter(user -> user.getOnlineStatus() == true)
+                .forEach(user -> {
+                    SocketStreamHelper.sendData(data, user.getDataOut());
+                });
     }
 
     void addUser(User user) {

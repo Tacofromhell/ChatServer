@@ -45,6 +45,14 @@ public abstract class NetworkMessage implements Serializable {
             this.targetRoom = targetRoom;
             this.user = user;
         }
+
+        public User getUser() {
+            return user;
+        }
+
+        public String getTargetRoom() {
+            return targetRoom;
+        }
     }
 
     public static class RoomLeave extends NetworkMessage {

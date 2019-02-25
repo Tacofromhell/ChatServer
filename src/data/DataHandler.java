@@ -2,6 +2,7 @@ package data;
 
 import network.ChatServer;
 import network.SocketStreamHelper;
+import data.NetworkMessage.*;
 
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -29,19 +30,20 @@ public class DataHandler implements Runnable {
                 } else if (data instanceof User) {
                     System.err.println("User object received but method is deprecated");
 
-                } else if (data instanceof NetworkMessage.ClientConnect) {
-                    handleClientConnect((NetworkMessage.ClientConnect) data);
+                } else if (data instanceof ClientConnect) {
+                    handleClientConnect((ClientConnect) data);
 
-                } else if (data instanceof NetworkMessage.RoomCreate) {
+                } else if (data instanceof RoomCreate) {
 
-                } else if (data instanceof NetworkMessage.RoomDelete) {
+                } else if (data instanceof RoomDelete) {
 
-                } else if (data instanceof NetworkMessage.RoomJoin) {
+                } else if (data instanceof RoomJoin) {
+                    handleRoomJoin(((RoomJoin) data).getTargetRoom(), ((RoomJoin) data).getUser());
 
-                } else if (data instanceof NetworkMessage.RoomLeave) {
+                } else if (data instanceof RoomLeave) {
 
-                } else if (data instanceof NetworkMessage.UserNameChange) {
-                    handleUserNameChange((NetworkMessage.UserNameChange) data);
+                } else if (data instanceof UserNameChange) {
+                    handleUserNameChange((UserNameChange) data);
 
                 } else if (((String) data).startsWith("update")) {
                     updateUsers();
@@ -56,25 +58,26 @@ public class DataHandler implements Runnable {
         }
     }
 
-    private void handleClientConnect(NetworkMessage.ClientConnect data) {
+    private void handleClientConnect(ClientConnect data) {
 
         System.out.println(data.userId);
 
-        ChatServer.get().getRooms().forEach((roomID, room) -> room.updateUser(this.socketUser));
+        socketUser.getJoinedRooms().forEach(room -> {
+            handleRoomJoin(room, socketUser);
+            ChatServer.get().getRooms().get(room).updateUser(this.socketUser);
+        });
 
         System.out.println("UserName: " + socketUser.getUsername());
 
-        //PLACEHOLDER: Get the rest of the users rooms:
-        //ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
-
+        // send first room
         SocketStreamHelper.sendData(ChatServer.get().getRooms().get("general"), socketUser.getDataOut());
 
-        System.out.println(ChatServer.get().getRooms().get("general"));
+        // then send the rest
+        socketUser.getJoinedRooms().forEach(room -> {
+            if (!room.equals("general"))
+                SocketStreamHelper.sendData(ChatServer.get().getRooms().get(room), socketUser.getDataOut());
+        });
 
-        SocketStreamHelper.sendData(ChatServer.get().getRooms().get("other room"), socketUser.getDataOut());
-
-        System.out.println("Updating");
-        ChatServer.get().broadcastToAll(ChatServer.get().getRooms());
     }
 
     private void handleClientDisconnect() {
@@ -86,13 +89,15 @@ public class DataHandler implements Runnable {
     private void handleRoomDelete() {
     }
 
-    private void handleRoomJoin() {
+    private void handleRoomJoin(String targetRoom, User user) {
+        ChatServer.get().broadcastToRoom(targetRoom, new RoomJoin(targetRoom, user));
+        ChatServer.get().getRooms().get(targetRoom).addUserToRoom(user);
     }
 
     private void handleRoomLeave() {
     }
 
-    private void handleUserNameChange(NetworkMessage.UserNameChange data) {
+    private void handleUserNameChange(UserNameChange data) {
         ChatServer.get().getUser(data.userId).setUsername(data.newName);
 
         // update users in all rooms

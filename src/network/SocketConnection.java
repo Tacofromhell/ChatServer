@@ -36,11 +36,8 @@ public class SocketConnection extends Thread implements Runnable {
 
         SocketStreamHelper.sendData(socketUser, dataOut);
 
-        System.out.println(ChatServer.get().getRooms());
-
         // add user to general room
-        ChatServer.get().getRooms().get("general").addUserToRoom(socketUser);
-        ChatServer.get().getRooms().get("other room").addUserToRoom(socketUser);
+//        ChatServer.get().getRooms().get("other room").addUserToRoom(socketUser);
 
         ChatServer.get().addUser(socketUser);
 
@@ -53,7 +50,6 @@ public class SocketConnection extends Thread implements Runnable {
             Object data = SocketStreamHelper.receiveData(dataIn);
 
             if (data != null) {
-                System.out.println("added data");
                 dataHandler.addToQueue(data);
             } else {
                 handleDisconnect();
