@@ -1,12 +1,15 @@
 package data;
 
 import java.io.*;
+import java.nio.file.StandardOpenOption;
+
+import static java.nio.file.StandardOpenOption.*;
 
 public class Serialization {
     Serialization(){
 
     }
-    public void saveObjectToFile(Object object, String fileName) {
+    public void saveObjectToFile(Object object, String fileName, StandardOpenOption append) {
         try {
             /*FileOutPutStream is a class, which handles the stream between
             the project and the filesystem in the computer.

@@ -3,6 +3,8 @@ package data;
 import network.ChatServer;
 import network.SocketStreamHelper;
 
+import java.io.IOException;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class HandleData implements Runnable {
@@ -10,6 +12,7 @@ public class HandleData implements Runnable {
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
     private User socketUser;
     private Serialization serialization;
+    DeserializeHandler<Object> objectDeserializeHandler = new DeserializeHandler<>();
 
     public HandleData(User socketUser) {
         this.socketUser = socketUser;
@@ -26,7 +29,12 @@ public class HandleData implements Runnable {
 
                 if (data instanceof Message) {
                     handleMessage(data);
-                    serialization.saveObjectToFile(data, "text.txt");
+                    serialization.saveObjectToFile(data, "text.txt", StandardOpenOption.APPEND);
+                    try {
+                        System.out.println(objectDeserializeHandler.deserialize(serialization, "text.txt" ));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 } else if (data instanceof User) {
                     System.err.println("User object received but method is deprecated");
