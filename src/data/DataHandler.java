@@ -62,9 +62,10 @@ public class DataHandler implements Runnable {
 
         System.out.println(data.userId);
 
-        socketUser.getJoinedRooms().forEach(room -> {
-            handleRoomJoin(room, socketUser);
-            ChatServer.get().getRooms().get(room).updateUser(this.socketUser);
+        socketUser.getJoinedRooms().forEach(roomName -> {
+            handleRoomJoin(roomName, socketUser);
+            ChatServer.get().getRooms().get(roomName).updateUser(this.socketUser);
+            ChatServer.get().broadcastToRoom(roomName, new ClientConnect(socketUser.getID()));
         });
 
         System.out.println("UserName: " + socketUser.getUsername());
