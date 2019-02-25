@@ -1,10 +1,6 @@
 package data;
 
-import data.Message;
-import data.User;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -19,6 +15,14 @@ public class Room implements Serializable {
     public Room(String name, int roomSize) {
         this.roomName = name;
         this.roomSize = roomSize == 0 ? 1000 : roomSize;
+    }
+
+    /*
+    * This function clears the users list. When we retrieve the chat history, we cannot assume that the users are online,
+    * hence, we will clear the users and when a user connects, we will add the user to the list.
+    * */
+    public void clearUsers() {
+        this.users = new CopyOnWriteArrayList<>();
     }
 
     public String getRoomName() {

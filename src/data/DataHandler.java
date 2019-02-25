@@ -3,7 +3,9 @@ package data;
 import network.ChatServer;
 import network.SocketStreamHelper;
 import data.NetworkMessage.*;
+import storage.StorageHandler;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class DataHandler implements Runnable {
@@ -26,6 +28,9 @@ public class DataHandler implements Runnable {
 
                 if (data instanceof Message) {
                     handleMessage(data);
+                    // Saving messages to file
+                    new StorageHandler<ConcurrentHashMap<String, Room>>()
+                            .saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (data instanceof User) {
                     System.err.println("User object received but method is deprecated");
