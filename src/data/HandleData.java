@@ -49,16 +49,16 @@ public class HandleData implements Runnable {
     }
 
     private void handleClientConnect() {
-        ChatServer.get().getRooms().forEach(room -> room.updateUser(this.socketUser));
+        ChatServer.get().getRooms().forEach((roomID, room) -> room.updateUser(this.socketUser));
 
         System.out.println("UserName: " + socketUser.getUsername());
 
         //PLACEHOLDER: Get the rest of the users rooms:
         //ArrayList<String> joinedRooms = ((User) data).getJoinedRooms();
 
-        SocketStreamHelper.sendData(ChatServer.get().getRooms().get(0), socketUser.getDataOut());
+        SocketStreamHelper.sendData(ChatServer.get().getRooms().get("general"), socketUser.getDataOut());
 
-        SocketStreamHelper.sendData(ChatServer.get().getRooms().get(1), socketUser.getDataOut());
+        SocketStreamHelper.sendData(ChatServer.get().getRooms().get("other room"), socketUser.getDataOut());
 
         System.out.println("Updating");
         ChatServer.get().broadcastToAll(ChatServer.get().getRooms());
@@ -93,8 +93,8 @@ public class HandleData implements Runnable {
 
         ChatServer.get().broadcastToRoom(msg.getRoom(), msg);
 
-        ChatServer.get().getRooms().forEach(room -> {
-            if (room.getRoomName().equals(msg.getRoom())) {
+        ChatServer.get().getRooms().forEach((roomID, room) -> {
+            if (roomID.equals(msg.getRoom())) {
                 room.addMessageToRoom(msg);
             }
         });

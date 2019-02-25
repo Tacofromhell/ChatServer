@@ -6,15 +6,16 @@ import data.User;
 
 import java.net.*;
 import java.io.*;
-import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 public class ChatServer {
 
     private final int PORT = 1234;
     private boolean running = true;
-    private ArrayList<User> allUsers = new ArrayList<>();
-    private ArrayList<Room> rooms = new ArrayList<>();
+    private CopyOnWriteArrayList<User> allUsers = new CopyOnWriteArrayList<>();
+    private ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     public static ChatServer singleton = new ChatServer();
 
     public ChatServer() {
@@ -44,12 +45,16 @@ public class ChatServer {
         }
     }
 
-    public ArrayList<Room> getRooms() {
+    public ConcurrentHashMap<String, Room> getRooms() {
         return rooms;
     }
 
     public void addRoom(Room room) {
-        rooms.add(room);
+        if(
+        rooms.contains(room.getRoomName())
+
+        )
+        rooms.putIfAbsent(room.getRoomName(), room);
     }
 
     public void broadcastToAll(Object o) {
@@ -61,8 +66,8 @@ public class ChatServer {
     }
 
     public void broadcastToRoom(String roomName, Message msg) {
-        rooms.forEach(room -> {
-            if (room.getRoomName().equals(roomName)) {
+        rooms.forEach((roomID, room) -> {
+            if (roomID.equals(roomName)) {
                 room.getUsers().stream()
                         .filter(user -> user.getOnlineStatus() == true)
                         .forEach(user -> {
@@ -89,7 +94,7 @@ public class ChatServer {
         return null;
     }
 
-    ArrayList<User> getUsers() {
+    CopyOnWriteArrayList<User> getUsers() {
         return allUsers;
     }
 
