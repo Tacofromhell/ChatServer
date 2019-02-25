@@ -2,6 +2,8 @@ package network;
 
 import data.Room;
 import data.User;
+import data.NetworkMessage.*;
+
 
 import java.net.*;
 import java.io.*;
@@ -94,6 +96,9 @@ public class ChatServer {
     }
 
     public void removeConnection(Socket socket, User user) {
+        user.getJoinedRooms().forEach(joinedRoom ->
+                broadcastToRoom(joinedRoom, new ClientDisconnect(user.getID())));
+
         try {
             socket.close();
             getUser(user.getID()).setOnlineStatus(false);
