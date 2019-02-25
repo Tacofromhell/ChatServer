@@ -30,8 +30,10 @@ public class Room implements Serializable {
     }
 
     public void addUserToRoom(User user) {
-        if (users.size() < roomSize + 1)
+        if (users.size() < roomSize + 1) {
             users.add(user);
+            System.out.println(user.getID() + " added to " + roomName);
+        }
         else
             System.err.println("Room: " + roomName + " is full");
     }

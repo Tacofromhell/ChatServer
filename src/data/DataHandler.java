@@ -102,8 +102,14 @@ public class DataHandler implements Runnable {
         ChatServer.get().getUser(data.userId).setUsername(data.newName);
 
         // update users in all rooms
-        ChatServer.get().getRooms().forEach((nameID, room) ->
-                room.updateUser(socketUser));
+        ChatServer.get().getRooms().forEach((nameID, room) ->{
+                room.updateUser(socketUser);
+                for(Message message : room.getMessages()){
+                    if(message.getUser().getID().equals(data.userId)){
+                        message.getUser().setUsername(data.newName);
+                    }
+                }
+        });
 
         // send updated user to all clients
         ChatServer.get().broadcastToAll(data);
