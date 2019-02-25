@@ -14,7 +14,7 @@ public class User implements Serializable {
     private transient ObjectOutputStream dataOut;
     private boolean onlineStatus;
     private ArrayList<String> joinedRooms = new ArrayList<>();
-    String activeRoom = "general";
+    String activeRoom = "";
 
     public User(ObjectOutputStream dataOut) {
         //this.activeRoom = "general";
@@ -24,7 +24,7 @@ public class User implements Serializable {
         this.onlineStatus = true;
         joinedRooms.add("general");
         joinedRooms.add("other room");
-        setActiveRoom("general");
+        setActiveRoom("other room");
 
     }
 

@@ -5,6 +5,7 @@ import data.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class Room implements Serializable {
@@ -13,7 +14,7 @@ public class Room implements Serializable {
     private String roomName;
     private int roomSize;
     private LinkedBlockingDeque<Message> messages = new LinkedBlockingDeque<>();
-    private ArrayList<User> users = new ArrayList<>();
+    private CopyOnWriteArrayList<User> users = new CopyOnWriteArrayList<>();
 
     public Room(String name, int roomSize) {
         this.roomName = name;
@@ -39,7 +40,7 @@ public class Room implements Serializable {
         return messages;
     }
 
-    public ArrayList<User> getUsers() {
+    public CopyOnWriteArrayList<User> getUsers() {
         return users;
     }
 

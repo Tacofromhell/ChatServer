@@ -71,11 +71,11 @@ public class DataHandler implements Runnable {
         System.out.println("UserName: " + socketUser.getUsername());
 
         // send first room
-        SocketStreamHelper.sendData(ChatServer.get().getRooms().get("general"), socketUser.getDataOut());
+        SocketStreamHelper.sendData(ChatServer.get().getRooms().get(socketUser.getActiveRoom()), socketUser.getDataOut());
 
         // then send the rest
         socketUser.getJoinedRooms().forEach(room -> {
-            if (!room.equals("general"))
+            if (!room.equals(socketUser.getActiveRoom()))
                 SocketStreamHelper.sendData(ChatServer.get().getRooms().get(room), socketUser.getDataOut());
         });
 
