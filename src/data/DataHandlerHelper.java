@@ -39,7 +39,15 @@ public class DataHandlerHelper {
     public void handleClientDisconnect() {
     }
 
-    public void handleRoomCreate() {
+    public void handleRoomCreate(RoomCreate data) {
+        Room room = data.isPublic() ? new PublicRoom(data.getRoomName()) :
+                new PrivateRoom(data.getRoomName());
+
+        room.addUserToRoom(socketUser);
+        socketUser.addJoinedRoom(data.getRoomName());
+        ChatServer.get().addRoom(room);
+
+        Broadcast.toAll(new RoomCreate(data.getRoomName(), true));
     }
 
     public void handleRoomDelete() {
@@ -53,7 +61,7 @@ public class DataHandlerHelper {
     public void handleRoomLeave() {
     }
 
-    public void handleUserActiveRoom(UserActiveRoom data){
+    public void handleUserActiveRoom(UserActiveRoom data) {
         socketUser.setActiveRoom(data.getActiveRoom());
     }
 

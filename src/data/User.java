@@ -19,12 +19,11 @@ public class User implements Serializable {
     public User(ObjectOutputStream dataOut) {
         //this.activeRoom = "general";
         this.ID = UUID.randomUUID().toString();
-        this.username = "anon"  + new Random().nextInt(1000);
+        this.username = "anon" + new Random().nextInt(1000);
         this.dataOut = dataOut;
         this.onlineStatus = true;
-        joinedRooms.add("general");
-        joinedRooms.add("other room");
-        setActiveRoom("other room");
+        addJoinedRoom("general");
+        setActiveRoom("general");
 
     }
 
@@ -37,6 +36,11 @@ public class User implements Serializable {
     public User(User oldUser) {
         this.ID = oldUser.ID;
         this.username = oldUser.username;
+    }
+
+    public void addJoinedRoom(String roomName) {
+        if (!joinedRooms.contains(roomName))
+            joinedRooms.add(roomName);
     }
 
     public String getActiveRoom() {
@@ -63,7 +67,7 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getID(){
+    public String getID() {
         return this.ID;
     }
 
@@ -75,11 +79,11 @@ public class User implements Serializable {
         this.username = username;
     }
 
-    public void setOnlineStatus(boolean onlineStatus){
+    public void setOnlineStatus(boolean onlineStatus) {
         this.onlineStatus = onlineStatus;
     }
 
-    public boolean getOnlineStatus(){
+    public boolean getOnlineStatus() {
         return this.onlineStatus;
     }
 }//class end

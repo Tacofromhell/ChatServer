@@ -1,5 +1,6 @@
 package network;
 
+import data.PublicRoom;
 import data.Room;
 import data.User;
 import data.NetworkMessage.*;
@@ -18,8 +19,7 @@ public class ChatServer {
 
     private ChatServer() {
         System.out.println("Starting server");
-        addRoom(new Room("general", 0));
-        addRoom(new Room("other room", 0));
+        addRoom(new PublicRoom("general"));
 
         new Thread(this::listeningOnClients).start();
     }

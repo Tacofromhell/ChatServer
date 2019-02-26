@@ -23,9 +23,19 @@ public abstract class NetworkMessage implements Serializable {
 
     public static class RoomCreate extends NetworkMessage {
         String roomName;
+        boolean isPublic;
 
-        public RoomCreate(String roomName) {
+        public RoomCreate(String roomName, boolean isPublic) {
             this.roomName = roomName;
+            this.isPublic = isPublic;
+        }
+
+        public String getRoomName() {
+            return roomName;
+        }
+
+        public boolean isPublic() {
+            return isPublic;
         }
     }
 

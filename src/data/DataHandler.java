@@ -35,6 +35,7 @@ public class DataHandler implements Runnable {
                     helper.handleClientConnect((ClientConnect) data);
 
                 } else if (data instanceof RoomCreate) {
+                    helper.handleRoomCreate((RoomCreate) data);
 
                 } else if (data instanceof RoomDelete) {
 
