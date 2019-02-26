@@ -34,6 +34,16 @@ public class DataHandlerHelper {
                 SocketStreamHelper.sendData(ChatServer.get().getRooms().get(room), socketUser.getDataOut());
         });
 
+        // then send all public rooms
+        ChatServer.get().getRooms().values().stream()
+                .filter(room -> room instanceof PublicRoom)
+                .forEach(publicRoom -> {
+                    if (!socketUser.getJoinedRooms().contains(publicRoom.getRoomName())) {
+                        SocketStreamHelper.sendData(new RoomCreate(
+                                publicRoom.getRoomName(), true), socketUser.getDataOut());
+                    }
+                });
+
     }
 
     public void handleClientDisconnect() {
@@ -43,9 +53,9 @@ public class DataHandlerHelper {
         Room room = data.isPublic() ? new PublicRoom(data.getRoomName()) :
                 new PrivateRoom(data.getRoomName());
 
-        room.addUserToRoom(socketUser);
-        socketUser.addJoinedRoom(data.getRoomName());
         ChatServer.get().addRoom(room);
+        socketUser.addJoinedRoom(data.getRoomName());
+        handleRoomJoin(room.getRoomName(), socketUser);
 
         Broadcast.toAllExceptThisSocket(new RoomCreate(data.getRoomName(), true), socketUser);
     }
@@ -54,8 +64,9 @@ public class DataHandlerHelper {
     }
 
     public void handleRoomJoin(String targetRoom, User user) {
-        System.out.println("Room join");
-        ChatServer.get().getRooms().get(targetRoom).addUserToRoom(user);
+        // user needs to have socketStream
+        ChatServer.get().getRooms().get(targetRoom).addUserToRoom(
+                ChatServer.get().getUser(user.getID()));
         Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user, ChatServer.get().getRooms().get(targetRoom)));
     }
 
