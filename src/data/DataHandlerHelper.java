@@ -47,15 +47,16 @@ public class DataHandlerHelper {
         socketUser.addJoinedRoom(data.getRoomName());
         ChatServer.get().addRoom(room);
 
-        Broadcast.toAll(new RoomCreate(data.getRoomName(), true));
+        Broadcast.toAllExceptThisSocket(new RoomCreate(data.getRoomName(), true), socketUser);
     }
 
     public void handleRoomDelete() {
     }
 
     public void handleRoomJoin(String targetRoom, User user) {
-        Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user));
+        System.out.println("Room join");
         ChatServer.get().getRooms().get(targetRoom).addUserToRoom(user);
+        Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user, ChatServer.get().getRooms().get(targetRoom)));
     }
 
     public void handleRoomLeave() {
