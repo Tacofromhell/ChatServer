@@ -43,6 +43,9 @@ public class DataHandler implements Runnable {
 
                 } else if (data instanceof RoomLeave) {
 
+                } else if (data instanceof UserActiveRoom) {
+                    helper.handleUserActiveRoom((UserActiveRoom) data);
+
                 } else if (data instanceof UserNameChange) {
                     helper.handleUserNameChange((UserNameChange) data);
 

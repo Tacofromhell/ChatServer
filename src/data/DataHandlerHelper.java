@@ -3,6 +3,7 @@ package data;
 import network.Broadcast;
 import network.ChatServer;
 import network.SocketStreamHelper;
+import data.NetworkMessage.*;
 
 public class DataHandlerHelper {
 
@@ -12,14 +13,14 @@ public class DataHandlerHelper {
         this.socketUser = socketUser;
     }
 
-    public void handleClientConnect(NetworkMessage.ClientConnect data) {
+    public void handleClientConnect(ClientConnect data) {
 
         System.out.println(data.userId);
 
         socketUser.getJoinedRooms().forEach(roomName -> {
             handleRoomJoin(roomName, socketUser);
             ChatServer.get().getRooms().get(roomName).updateUser(this.socketUser);
-            Broadcast.toRoom(roomName, new NetworkMessage.ClientConnect(socketUser.getID()));
+            Broadcast.toRoom(roomName, new ClientConnect(socketUser.getID()));
         });
 
         System.out.println("UserName: " + socketUser.getUsername());
@@ -45,14 +46,18 @@ public class DataHandlerHelper {
     }
 
     public void handleRoomJoin(String targetRoom, User user) {
-        Broadcast.toRoom(targetRoom, new NetworkMessage.RoomJoin(targetRoom, user));
+        Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user));
         ChatServer.get().getRooms().get(targetRoom).addUserToRoom(user);
     }
 
     public void handleRoomLeave() {
     }
 
-    public void handleUserNameChange(NetworkMessage.UserNameChange data) {
+    public void handleUserActiveRoom(UserActiveRoom data){
+        socketUser.setActiveRoom(data.getActiveRoom());
+    }
+
+    public void handleUserNameChange(UserNameChange data) {
         ChatServer.get().getUser(data.userId).setUsername(data.newName);
 
         // update users in all rooms
