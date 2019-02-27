@@ -3,6 +3,8 @@ package data;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import data.Message;
+import data.User;
 
 public abstract class Room implements Serializable {
     private static final long serialVersionUID = 8119886995263638778L;
@@ -14,6 +16,14 @@ public abstract class Room implements Serializable {
 
     public Room(String name) {
         this.roomName = name;
+    }
+
+    /*
+    * This function clears the users list. When we retrieve the chat history, we cannot assume that the users are online,
+    * hence, we will clear the users and when a user connects, we will add the user to the list.
+    * */
+    public void clearUsers() {
+        this.users = new ConcurrentHashMap<>();
     }
 
     public String getRoomName() {

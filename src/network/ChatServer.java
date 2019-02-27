@@ -4,6 +4,7 @@ import data.PublicRoom;
 import data.Room;
 import data.User;
 import data.NetworkMessage.*;
+import storage.StorageHandler;
 
 import java.net.*;
 import java.io.*;
@@ -22,6 +23,22 @@ public class ChatServer {
         addRoom(new PublicRoom("general"));
 
         new Thread(this::listeningOnClients).start();
+    }
+
+    private ConcurrentHashMap<String, Room> getChatHistory() {
+        final ConcurrentHashMap<String, Room> rooms;
+        try {
+            // Trying to fetch chat history from storage
+            rooms = new StorageHandler<ConcurrentHashMap<String, Room>>().getFromStorage("history.txt");
+            // Removing old users from the rooms
+            rooms.forEach((s, room) -> rooms.get(s).clearUsers());
+            return rooms;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //If no history exists
+        return new ConcurrentHashMap<>();
     }
 
     public static ChatServer get() {
