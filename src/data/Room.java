@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
+import data.Message;
+import data.User;
 
 public class Room implements Serializable {
     private static final long serialVersionUID = 8119886995263638778L;
@@ -24,7 +26,7 @@ public class Room implements Serializable {
     * hence, we will clear the users and when a user connects, we will add the user to the list.
     * */
     public void clearUsers() {
-        this.users = new CopyOnWriteArrayList<>();
+        this.users = new ConcurrentHashMap<>();
     }
 
     public String getRoomName() {

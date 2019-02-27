@@ -1,6 +1,10 @@
 package storage;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class StorageHandler<T> {
     public StorageHandler() {
@@ -12,7 +16,10 @@ public class StorageHandler<T> {
     }
 
     public void saveToStorage(Object object, String fileName) {
-        try {
+        Path path = Paths.get("src/storage/" + fileName);
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                Files.newOutputStream(path, StandardOpenOption.CREATE)
+        )) {
             /*FileOutPutStream is a class, which handles the stream between
             the project and the filesystem in the computer.
              */
@@ -20,12 +27,9 @@ public class StorageHandler<T> {
                     new FileOutputStream(fileName);
             /*A stream that can handle objects to be send to the filesystem,
              * gets the stream from the FileOutputStream */
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+
             //Sending the serialized object to the filesystem and creating a new file
             out.writeObject(object);
-            //Closing the stream (connection from filesystem to project) on both sides
-            out.close();
-            fileOut.close();
             System.out.println("Serialized data is saved in " + fileName);
         } catch (IOException i) {
             i.printStackTrace();
@@ -37,18 +41,13 @@ public class StorageHandler<T> {
         FileInputStream fileIn = null;
         //create an object stream (want to get an object)
         ObjectInputStream objectInputStream = null;
-        try {
+        Path path = Paths.get("src/storage/" + fileName);
+        try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
             //Initialize the inputStream, and ask for the specific file
-            fileIn = new FileInputStream(fileName);
-            objectInputStream = new ObjectInputStream(fileIn);
             //Reads the file with object and return it
-            return objectInputStream.readObject();
+            return in.readObject();
         } catch (Exception i) {
             i.printStackTrace();
-        } finally {
-            //Closing the streams (always do that)
-            objectInputStream.close();
-            fileIn.close();
         }
         return null;
     }

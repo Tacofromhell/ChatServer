@@ -8,13 +8,16 @@ import storage.StorageHandler;
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ChatServer {
 
     private final int PORT = 1234;
     private boolean running = true;
-    private CopyOnWriteArrayList<User> allUsers = new CopyOnWriteArrayList<>();
-    private ConcurrentHashMap<String, Room> rooms;
+    //private CopyOnWriteArrayList<User> allUsers = new CopyOnWriteArrayList<>();
+    //private ConcurrentHashMap<String, Room> rooms;
+    private ConcurrentHashMap<String, User> allUsers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     private final static ChatServer singleton = new ChatServer();
 
     private ChatServer() {

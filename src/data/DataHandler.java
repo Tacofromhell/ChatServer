@@ -30,7 +30,6 @@ public class DataHandler implements Runnable {
 
                 if (data instanceof Message) {
                     helper.handleMessage(data);
-                    handleMessage(data);
                     // Saving messages to file
                     new StorageHandler<ConcurrentHashMap<String, Room>>()
                             .saveToStorage(ChatServer.get().getRooms(),"history.txt");
