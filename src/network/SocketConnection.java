@@ -43,7 +43,7 @@ public class SocketConnection extends Thread implements Runnable {
 
         System.out.println(socketUser + " " + socketUser.getID());
         System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-        System.out.println("Connected Clients: " +  ChatServer.get().getUsers().stream().filter(user -> user.getOnlineStatus() == true).count());
+        System.out.println("Connected Clients: " +  ChatServer.get().getUsers().values().stream().filter(user -> user.getOnlineStatus() == true).count());
 
         //Threadloop
         while (running) {

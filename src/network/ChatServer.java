@@ -5,12 +5,9 @@ import data.User;
 import data.NetworkMessage.*;
 import storage.StorageHandler;
 
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
 
 public class ChatServer {
 
@@ -76,55 +73,39 @@ public class ChatServer {
             rooms.putIfAbsent(room.getRoomName(), room);
     }
 
-    public void broadcastToAll(Object data) {
-        Stream.of(allUsers)
-                .map(user -> user.stream().filter(u -> u.getOnlineStatus() == true))
-                .forEach(onlineUser -> onlineUser.forEach(userStream -> {
-                    SocketStreamHelper.sendData(data, userStream.getDataOut());
-                }));
-    }
-
-    public void broadcastToRoom(String roomName, Object data) {
-        rooms.get(roomName).getUsers().stream()
-                .filter(user -> user.getOnlineStatus() == true)
-                .forEach(user -> {
-                    SocketStreamHelper.sendData(data, user.getDataOut());
-                });
-    }
 
     void addUser(User user) {
-        allUsers.add(user);
+        if (allUsers.contains(user))
+            System.out.println("User already exists");
+        else
+            allUsers.putIfAbsent(user.getID(), user);
     }
 
     public void removeUser(User user) {
         allUsers.remove(user);
     }
 
-    public User getUser(String userID) {
-        for (User user : allUsers) {
-            if (user.getID().equals(userID)) {
-                return user;
-            }
-        }
-        return null;
+    public User getUser(String targetUserID) {
+        return allUsers.get(targetUserID);
     }
 
-    CopyOnWriteArrayList<User> getUsers() {
+    public ConcurrentHashMap<String, User> getUsers() {
         return allUsers;
     }
 
     public void removeConnection(Socket socket, User user) {
         user.getJoinedRooms().forEach(joinedRoom ->
-                broadcastToRoom(joinedRoom, new ClientDisconnect(user.getID())));
+                Broadcast.toRoom(joinedRoom, new ClientDisconnect(user.getID())));
 
         try {
             socket.close();
             getUser(user.getID()).setOnlineStatus(false);
             System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
             System.out.println("Connected clients: " +
-                    allUsers.stream().filter(u ->
+                    allUsers.values().stream().filter((u) ->
                             u.getOnlineStatus() == true)
                             .count());
+
 
         } catch (IOException e) {
             e.printStackTrace();

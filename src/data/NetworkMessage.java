@@ -84,5 +84,17 @@ public abstract class NetworkMessage implements Serializable {
         }
     }
 
+    public static class UserActiveRoom extends NetworkMessage {
+        String activeRoom;
+
+        public UserActiveRoom(String activeRoom){
+            this.activeRoom = activeRoom;
+        }
+
+        public String getActiveRoom() {
+            return activeRoom;
+        }
+    }
+
 }//END OF CLASS
 
