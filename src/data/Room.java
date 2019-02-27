@@ -41,7 +41,9 @@ public abstract class Room implements Serializable {
     }
 
     public void updateUser(User updatedUser) {
-        users.get(updatedUser.getID())
-                .setUsername(updatedUser.getUsername());
+        if (users.contains(updatedUser)) {
+            users.get(updatedUser.getID())
+                    .setUsername(updatedUser.getUsername());
+        }
     }
 }
