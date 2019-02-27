@@ -23,8 +23,6 @@ public class StorageHandler<T> {
             /*FileOutPutStream is a class, which handles the stream between
             the project and the filesystem in the computer.
              */
-            FileOutputStream fileOut =
-                    new FileOutputStream(fileName);
             /*A stream that can handle objects to be send to the filesystem,
              * gets the stream from the FileOutputStream */
 
@@ -38,9 +36,7 @@ public class StorageHandler<T> {
 
     private Object readFile(String fileName) throws IOException {
         //Opens a stream to the filesystem
-        FileInputStream fileIn = null;
         //create an object stream (want to get an object)
-        ObjectInputStream objectInputStream = null;
         Path path = Paths.get("src/storage/" + fileName);
         try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(path))) {
             //Initialize the inputStream, and ask for the specific file

@@ -21,6 +21,7 @@ public class ChatServer {
     private ChatServer() {
         System.out.println("Starting server");
         addRoom(new PublicRoom("general"));
+        rooms = getChatHistory();
 
         new Thread(this::listeningOnClients).start();
     }
