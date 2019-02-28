@@ -6,18 +6,17 @@ import network.ChatServer;
 import storage.StorageHandler;
 
 
+import java.io.ObjectOutputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class DataHandler implements Runnable {
 
-    private User socketUser;
     private DataHandlerHelper helper;
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
 
-    public DataHandler(User socketUser) {
-        this.socketUser = socketUser;
-        helper = new DataHandlerHelper(socketUser);
+    public DataHandler(User user) {
+        helper = new DataHandlerHelper(user);
 
     }
 

@@ -70,7 +70,7 @@ public class ChatServer {
     }
 
 
-    void addUser(User user) {
+    public void addUser(User user) {
         if (allUsers.contains(user))
             System.out.println("User already exists");
         else

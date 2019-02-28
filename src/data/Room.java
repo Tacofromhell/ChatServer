@@ -3,6 +3,7 @@ package data;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+
 import data.Message;
 import data.User;
 
@@ -19,9 +20,9 @@ public abstract class Room implements Serializable {
     }
 
     /*
-    * This function clears the users list. When we retrieve the chat history, we cannot assume that the users are online,
-    * hence, we will clear the users and when a user connects, we will add the user to the list.
-    * */
+     * This function clears the users list. When we retrieve the chat history, we cannot assume that the users are online,
+     * hence, we will clear the users and when a user connects, we will add the user to the list.
+     * */
     public void clearUsers() {
         this.users = new ConcurrentHashMap<>();
     }
@@ -40,8 +41,7 @@ public abstract class Room implements Serializable {
         } else if (users.size() < roomSize) {
             users.putIfAbsent(user.getID(), user);
             System.out.println(user.getUsername() + " added to " + roomName);
-        } else
-            System.err.println("Room: " + roomName + " is full");
+        }
     }
 
     public LinkedBlockingDeque<Message> getMessages() {

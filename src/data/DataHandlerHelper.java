@@ -5,12 +5,14 @@ import network.ChatServer;
 import network.SocketStreamHelper;
 import data.NetworkMessage.*;
 
+import java.io.ObjectOutputStream;
+
 public class DataHandlerHelper {
 
     private User socketUser;
 
-    public DataHandlerHelper(User socketUser) {
-        this.socketUser = socketUser;
+    public DataHandlerHelper(User user) {
+        this.socketUser = user;
     }
 
     public void handleClientConnect(ClientConnect data) {
