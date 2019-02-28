@@ -106,6 +106,7 @@ public class DataHandlerHelper {
 
         System.out.println(msg.getRoom() + ": " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
+
         Broadcast.toRoom(msg.getRoom(), msg);
 
         ChatServer.get().getRooms().forEach((roomID, room) -> {

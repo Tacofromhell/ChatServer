@@ -32,11 +32,11 @@ public class SocketConnection extends Thread implements Runnable {
         NetworkMessage.InitializeClient initClient = (NetworkMessage.InitializeClient) SocketStreamHelper.receiveData(dataIn);
         if(ChatServer.get().getUsers().containsKey(initClient.userId)){
             socketUser = ChatServer.get().getUser(initClient.userId);
+            socketUser.setOnlineStatus(true);
             socketUser.setDataOut(dataOut);
             socketUser.getJoinedRooms().forEach(roomName -> {
                 ChatServer.get().getRooms().get(roomName).updateUser(this.socketUser);
             });
-
         } else {
             socketUser = new User(dataOut);
             ChatServer.get().addUser(socketUser);
