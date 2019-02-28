@@ -13,6 +13,14 @@ public abstract class NetworkMessage implements Serializable {
         }
     }
 
+    public static class InitializeClient extends NetworkMessage {
+        public String userId;
+
+        public InitializeClient(String userId) {
+            this.userId = userId;
+        }
+    }
+
     public static class ClientDisconnect extends NetworkMessage {
         String userId;
 

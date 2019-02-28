@@ -47,4 +47,23 @@ public class StorageHandler<T> {
         }
         return new ConcurrentHashMap<>();
     }
+
+    public static void resetStorage(Object object, String fileName) {
+        Path path = Paths.get("src/storage/" + fileName);
+        try (ObjectOutputStream out = new ObjectOutputStream(
+                Files.newOutputStream(path, StandardOpenOption.CREATE)
+        )) {
+            /*FileOutPutStream is a class, which handles the stream between
+            the project and the filesystem in the computer.
+             */
+            /*A stream that can handle objects to be send to the filesystem,
+             * gets the stream from the FileOutputStream */
+
+            //Sending the serialized object to the filesystem and creating a new file
+            out.writeObject(object);
+
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
 }

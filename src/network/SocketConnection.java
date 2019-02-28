@@ -1,6 +1,7 @@
 package network;
 
 import data.DataHandler;
+import data.NetworkMessage;
 import data.User;
 
 import java.net.*;
@@ -27,7 +28,20 @@ public class SocketConnection extends Thread implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        socketUser = new User(dataOut);
+
+        NetworkMessage.InitializeClient initClient = (NetworkMessage.InitializeClient) SocketStreamHelper.receiveData(dataIn);
+        if(ChatServer.get().getUsers().containsKey(initClient.userId)){
+            socketUser = ChatServer.get().getUser(initClient.userId);
+            socketUser.setDataOut(dataOut);
+            socketUser.getJoinedRooms().forEach(roomName -> {
+                ChatServer.get().getRooms().get(roomName).updateUser(this.socketUser);
+            });
+
+        } else {
+            socketUser = new User(dataOut);
+            ChatServer.get().addUser(socketUser);
+        }
+
         dataHandler = new DataHandler(socketUser);
 
         Thread startdataHandler = new Thread(dataHandler);
@@ -39,7 +53,6 @@ public class SocketConnection extends Thread implements Runnable {
         // add user to general room
 //        ChatServer.get().getRooms().get("other room").addUserToRoom(socketUser);
 
-        ChatServer.get().addUser(socketUser);
 
         System.out.println(socketUser + " " + socketUser.getID());
         System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
