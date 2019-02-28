@@ -76,6 +76,7 @@ public class DataHandlerHelper {
         System.out.println(ChatServer.get().getRooms().size());
         ChatServer.get().getRooms().get(targetRoom).addUserToRoom(
                 ChatServer.get().getUser(user.getID()));
+        socketUser.addJoinedRoom(targetRoom);
         Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user, ChatServer.get().getRooms().get(targetRoom)));
     }
 

@@ -80,8 +80,8 @@ public class SocketConnection extends Thread implements Runnable {
 //        SocketStreamHelper.sendData(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser.getDataOut());
         ChatServer.get().removeConnection(clientSocket, socketUser);
 
-        StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");
-        StorageHandler.saveToStorage(ChatServer.get().getUsers(), "users-data.ser");
+//        StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");
+//        StorageHandler.saveToStorage(ChatServer.get().getUsers(), "users-data.ser");
 
     }
 
