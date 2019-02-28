@@ -85,7 +85,16 @@ public class DataHandlerHelper {
                 .get(data.userId)
                 .removeJoinedRoom(data.targetRoom);
 
-        Broadcast.toRoom(data.targetRoom, new RoomLeave(data.targetRoom, data.userId));
+        // if rooms is empty, delete it
+        if (ChatServer.get().getRooms().get(data.targetRoom)
+                .getUsers().size() < 1) {
+            ChatServer.get().getRooms().remove(data.targetRoom);
+            Broadcast.toAll(new RoomDelete(data.targetRoom));
+        } else {
+
+            Broadcast.toRoom(data.targetRoom, new RoomLeave(data.targetRoom, data.userId));
+        }
+
     }
 
     public void handleUserActiveRoom(UserActiveRoom data) {
