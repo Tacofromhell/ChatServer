@@ -14,7 +14,6 @@ public class DataHandler implements Runnable {
     private User socketUser;
     private DataHandlerHelper helper;
     private LinkedBlockingDeque dataQueue = new LinkedBlockingDeque();
-    private StorageHandler storageHandler = new StorageHandler<ConcurrentHashMap<String, Room>>();
 
     public DataHandler(User socketUser) {
         this.socketUser = socketUser;
@@ -32,42 +31,37 @@ public class DataHandler implements Runnable {
 
                 if (data instanceof Message) {
                     helper.handleMessage(data);
-                    // Saving messages to file
 
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
                 } else if (data instanceof User) {
                     System.err.println("User object received but method is deprecated");
 
                 } else if (data instanceof ClientConnect) {
                     helper.handleClientConnect((ClientConnect) data);
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
-
 
                 } else if (data instanceof RoomCreate) {
                     helper.handleRoomCreate((RoomCreate) data);
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (data instanceof RoomDelete) {
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (data instanceof RoomJoin) {
                     helper.handleRoomJoin(((RoomJoin) data).getTargetRoom(), ((RoomJoin) data).getUser());
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (data instanceof RoomLeave) {
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (data instanceof UserActiveRoom) {
                     helper.handleUserActiveRoom((UserActiveRoom) data);
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (data instanceof UserNameChange) {
                     helper.handleUserNameChange((UserNameChange) data);
-                    storageHandler.saveToStorage(ChatServer.get().getRooms(),"history.txt");
 
                 } else if (((String) data).startsWith("update")) {
                     updateUsers();
                 }
+
+                // when rooms get updated, save to file
+                StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");
+                StorageHandler.saveToStorage(ChatServer.get().getUsers(), "users-data.ser");
+
             } else {
                 try {
                     Thread.sleep(200);

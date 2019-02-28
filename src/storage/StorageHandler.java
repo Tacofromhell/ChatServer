@@ -5,20 +5,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StorageHandler<T> {
     public StorageHandler() {
 
     }
 
-    public T getFromStorage(String fileName) throws IOException {
+    public T getFromStorage(String fileName) {
         return (T) readFile(fileName);
     }
 
-    public void saveToStorage(Object object, String fileName) {
+    public static void saveToStorage(Object object, String fileName) {
         Path path = Paths.get("src/storage/" + fileName);
         try (ObjectOutputStream out = new ObjectOutputStream(
-                Files.newOutputStream(path, StandardOpenOption.CREATE)
+                Files.newOutputStream(path, StandardOpenOption.TRUNCATE_EXISTING)
         )) {
             /*FileOutPutStream is a class, which handles the stream between
             the project and the filesystem in the computer.
@@ -34,7 +35,7 @@ public class StorageHandler<T> {
         }
     }
 
-    private Object readFile(String fileName) throws IOException {
+    public static Object readFile(String fileName) {
         //Opens a stream to the filesystem
         //create an object stream (want to get an object)
         Path path = Paths.get("src/storage/" + fileName);
@@ -43,8 +44,7 @@ public class StorageHandler<T> {
             //Reads the file with object and return it
             return in.readObject();
         } catch (Exception i) {
-            i.printStackTrace();
         }
-        return null;
+        return new ConcurrentHashMap<>();
     }
 }

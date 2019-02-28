@@ -20,26 +20,23 @@ public class ChatServer {
 
     private ChatServer() {
         System.out.println("Starting server");
-        addRoom(new PublicRoom("general"));
-        rooms = getChatHistory();
+//        addRoom(new PublicRoom("general"));
+
+        // TODO: add dataOut when user reconnects
+//        allUsers = (ConcurrentHashMap) StorageHandler.readFile("users-data.ser");
+//        rooms = (ConcurrentHashMap) StorageHandler.readFile("rooms-data.ser");
+        rooms = loadRoomsFromStorage();
 
         new Thread(this::listeningOnClients).start();
     }
 
-    private ConcurrentHashMap<String, Room> getChatHistory() {
+    private ConcurrentHashMap<String, Room> loadRoomsFromStorage() {
         final ConcurrentHashMap<String, Room> rooms;
-        try {
-            // Trying to fetch chat history from storage
-            rooms = new StorageHandler<ConcurrentHashMap<String, Room>>().getFromStorage("history.txt");
-            // Removing old users from the rooms
-            rooms.forEach((s, room) -> rooms.get(s).clearUsers());
-            return rooms;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //If no history exists
-        return new ConcurrentHashMap<>();
+        // Trying to fetch chat history from storage
+        rooms = (ConcurrentHashMap) StorageHandler.readFile("rooms-data.ser");
+        // Removing old users from the rooms
+        rooms.forEach((s, room) -> room.clearUsers());
+        return rooms;
     }
 
     public static ChatServer get() {
