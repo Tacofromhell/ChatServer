@@ -61,7 +61,7 @@ public class DataHandlerHelper {
                     new PrivateRoom(data.getRoomName());
 
             ChatServer.get().addRoom(room);
-            socketUser.addJoinedRoom(data.getRoomName());
+//            socketUser.addJoinedRoom(data.getRoomName());
             handleRoomJoin(room.getRoomName(), socketUser);
 
             Broadcast.toAllExceptThisSocket(new RoomCreate(data.getRoomName(), true), socketUser);
