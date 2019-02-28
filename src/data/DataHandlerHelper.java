@@ -77,7 +77,25 @@ public class DataHandlerHelper {
         Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user, ChatServer.get().getRooms().get(targetRoom)));
     }
 
-    public void handleRoomLeave() {
+    public void handleRoomLeave(RoomLeave data) {
+        ChatServer.get().getRooms()
+                .get(data.targetRoom)
+                .getUsers()
+                .remove(data.userId);
+        ChatServer.get().getUsers()
+                .get(data.userId)
+                .removeJoinedRoom(data.targetRoom);
+
+        // if rooms is empty, delete it
+        if (ChatServer.get().getRooms().get(data.targetRoom)
+                .getUsers().size() < 1) {
+            ChatServer.get().getRooms().remove(data.targetRoom);
+            Broadcast.toAll(new RoomDelete(data.targetRoom));
+        } else {
+
+            Broadcast.toRoom(data.targetRoom, new RoomLeave(data.targetRoom, data.userId));
+        }
+
     }
 
     public void handleUserActiveRoom(UserActiveRoom data) {
