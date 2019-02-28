@@ -42,6 +42,10 @@ public class User implements Serializable {
         if (!joinedRooms.contains(roomName))
             joinedRooms.add(roomName);
     }
+    public void removeJoinedRoom(String roomName) {
+        if (joinedRooms.contains(roomName))
+            joinedRooms.remove(roomName);
+    }
 
     public String getActiveRoom() {
         return activeRoom;

@@ -47,6 +47,7 @@ public class DataHandler implements Runnable {
                     helper.handleRoomJoin(((RoomJoin) data).getTargetRoom(), ((RoomJoin) data).getUser());
 
                 } else if (data instanceof RoomLeave) {
+                    helper.handleRoomLeave((RoomLeave) data);
 
                 } else if (data instanceof UserActiveRoom) {
                     helper.handleUserActiveRoom((UserActiveRoom) data);
