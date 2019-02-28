@@ -21,6 +21,9 @@ public abstract class NetworkMessage implements Serializable {
         }
     }
 
+    public static class RoomNameExists extends NetworkMessage {
+    }
+
     public static class RoomCreate extends NetworkMessage {
         String roomName;
         boolean isPublic;
@@ -103,7 +106,7 @@ public abstract class NetworkMessage implements Serializable {
     public static class UserActiveRoom extends NetworkMessage {
         String activeRoom;
 
-        public UserActiveRoom(String activeRoom){
+        public UserActiveRoom(String activeRoom) {
             this.activeRoom = activeRoom;
         }
 

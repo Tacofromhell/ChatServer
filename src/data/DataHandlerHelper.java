@@ -50,14 +50,20 @@ public class DataHandlerHelper {
     }
 
     public void handleRoomCreate(RoomCreate data) {
-        Room room = data.isPublic() ? new PublicRoom(data.getRoomName()) :
-                new PrivateRoom(data.getRoomName());
 
-        ChatServer.get().addRoom(room);
-        socketUser.addJoinedRoom(data.getRoomName());
-        handleRoomJoin(room.getRoomName(), socketUser);
+        if (ChatServer.get().getRooms().containsKey(data.roomName)) {
+            SocketStreamHelper.sendData(new RoomNameExists(),
+                    socketUser.getDataOut());
+        } else {
+            Room room = data.isPublic() ? new PublicRoom(data.getRoomName()) :
+                    new PrivateRoom(data.getRoomName());
 
-        Broadcast.toAllExceptThisSocket(new RoomCreate(data.getRoomName(), true), socketUser);
+            ChatServer.get().addRoom(room);
+            socketUser.addJoinedRoom(data.getRoomName());
+            handleRoomJoin(room.getRoomName(), socketUser);
+
+            Broadcast.toAllExceptThisSocket(new RoomCreate(data.getRoomName(), true), socketUser);
+        }
     }
 
     public void handleRoomDelete() {
