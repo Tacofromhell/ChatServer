@@ -21,13 +21,6 @@ public class ChatServer {
     private ChatServer() {
         System.out.println("Starting server");
 
-
-        //Resets storage if needed and creates  "general"
-//        StorageHandler.resetStorage(allUsers, "users-data.ser");
-//        StorageHandler.resetStorage(rooms, "rooms-data.ser");
-//        addRoom(new PublicRoom("general"));
-//        StorageHandler.saveToStorage(rooms, "rooms-data.ser");
-
         // TODO: add dataOut when user reconnects
         allUsers = (ConcurrentHashMap) StorageHandler.readFile("users-data.ser");
         rooms = (ConcurrentHashMap) StorageHandler.readFile("rooms-data.ser");

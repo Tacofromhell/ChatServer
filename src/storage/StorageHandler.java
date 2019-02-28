@@ -1,5 +1,10 @@
 package storage;
 
+import data.PublicRoom;
+import data.Room;
+import data.User;
+import network.ChatServer;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +49,13 @@ public class StorageHandler<T> {
             //Reads the file with object and return it
             return in.readObject();
         } catch (Exception i) {
+            createFile("users-data.ser");
+            createFile("rooms-data.ser");
+
+            resetStorage(new ConcurrentHashMap<String, User >(), "users-data.ser");
+            ConcurrentHashMap<String, Room> serverWithOnlyGeneral = new ConcurrentHashMap<>();
+            serverWithOnlyGeneral.putIfAbsent("general", (new PublicRoom("general")));
+            resetStorage(serverWithOnlyGeneral, "rooms-data.ser");
         }
         return new ConcurrentHashMap<>();
     }
@@ -53,6 +65,7 @@ public class StorageHandler<T> {
         try (ObjectOutputStream out = new ObjectOutputStream(
                 Files.newOutputStream(path, StandardOpenOption.CREATE)
         )) {
+
             /*FileOutPutStream is a class, which handles the stream between
             the project and the filesystem in the computer.
              */
@@ -64,6 +77,15 @@ public class StorageHandler<T> {
 
         } catch (IOException i) {
             i.printStackTrace();
+        }
+    }
+
+    private static void createFile(String fileName){
+        Path path = Paths.get("src/storage/" + fileName);
+        try {
+            Files.createFile(path);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
