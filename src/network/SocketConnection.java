@@ -74,9 +74,12 @@ public class SocketConnection extends Thread implements Runnable {
     private void handleDisconnect() {
         //Handles error when client stops program
         System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
+
+        Broadcast.toAllExceptThisSocket(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser);
+//        SocketStreamHelper.sendData(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser.getDataOut());
         socketUser.setOnlineStatus(false);
         ChatServer.get().removeConnection(clientSocket, socketUser);
-        dataHandler.updateUsers();
+
     }
 
 }
