@@ -5,8 +5,6 @@ import network.ChatServer;
 import network.SocketStreamHelper;
 import data.NetworkMessage.*;
 
-import java.io.ObjectOutputStream;
-
 public class DataHandlerHelper {
 
     private User socketUser;
@@ -27,15 +25,6 @@ public class DataHandlerHelper {
 
         System.out.println("UserName: " + socketUser.getUsername());
 
-        // send first room
-        SocketStreamHelper.sendData(ChatServer.get().getRooms().get(socketUser.getActiveRoom()), socketUser.getDataOut());
-
-        // then send the rest
-        socketUser.getJoinedRooms().forEach(room -> {
-            if (!room.equals(socketUser.getActiveRoom()))
-                SocketStreamHelper.sendData(ChatServer.get().getRooms().get(room), socketUser.getDataOut());
-        });
-
         // then send all public rooms
         ChatServer.get().getRooms().values().stream()
                 .filter(room -> room instanceof PublicRoom)
@@ -45,10 +34,6 @@ public class DataHandlerHelper {
                                 publicRoom.getRoomName(), true), socketUser.getDataOut());
                     }
                 });
-
-    }
-
-    public void handleClientDisconnect() {
     }
 
     public void handleRoomCreate(RoomCreate data) {
@@ -61,19 +46,15 @@ public class DataHandlerHelper {
                     new PrivateRoom(data.getRoomName());
 
             ChatServer.get().addRoom(room);
-            socketUser.addJoinedRoom(data.getRoomName());
             handleRoomJoin(room.getRoomName(), socketUser);
 
             Broadcast.toAllExceptThisSocket(new RoomCreate(data.getRoomName(), true), socketUser);
         }
     }
 
-    public void handleRoomDelete() {
-    }
-
     public void handleRoomJoin(String targetRoom, User user) {
         // user needs to have socketStream
-        System.out.println(ChatServer.get().getRooms().size());
+        socketUser.addJoinedRoom(targetRoom);
         ChatServer.get().getRooms().get(targetRoom).addUserToRoom(
                 ChatServer.get().getUser(user.getID()));
         Broadcast.toRoom(targetRoom, new RoomJoin(targetRoom, user, ChatServer.get().getRooms().get(targetRoom)));
@@ -97,7 +78,6 @@ public class DataHandlerHelper {
 
             Broadcast.toRoom(data.targetRoom, new RoomLeave(data.targetRoom, data.userId));
         }
-
     }
 
     public void handleUserActiveRoom(UserActiveRoom data) {
@@ -126,7 +106,6 @@ public class DataHandlerHelper {
 
         System.out.println(msg.getRoom() + ": " + msg.getTimestamp() + " | " + socketUser.getUsername() + ": " + msg.getMsg());
 
-
         Broadcast.toRoom(msg.getRoom(), msg);
 
         ChatServer.get().getRooms().forEach((roomID, room) -> {
@@ -134,8 +113,5 @@ public class DataHandlerHelper {
                 room.addMessageToRoom(msg);
             }
         });
-    }
-
-    public void handleRoom() {
     }
 }

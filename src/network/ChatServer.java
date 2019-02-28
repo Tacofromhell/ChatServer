@@ -26,6 +26,13 @@ public class ChatServer {
         rooms = (ConcurrentHashMap) StorageHandler.readFile("rooms-data.ser");
 //        rooms = loadRoomsFromStorage();
 
+        allUsers.values().forEach(user ->{
+
+                System.out.println(user.getJoinedRooms());
+                System.out.println(user.getActiveRoom());
+                }
+        );
+
         new Thread(this::listeningOnClients).start();
     }
 

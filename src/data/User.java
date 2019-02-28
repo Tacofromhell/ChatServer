@@ -42,6 +42,7 @@ public class User implements Serializable {
         if (!joinedRooms.contains(roomName))
             joinedRooms.add(roomName);
     }
+
     public void removeJoinedRoom(String roomName) {
         if (joinedRooms.contains(roomName))
             joinedRooms.remove(roomName);
@@ -53,6 +54,9 @@ public class User implements Serializable {
 
     public void setActiveRoom(String activeRoom) {
         this.activeRoom = activeRoom;
+
+        joinedRooms.remove(activeRoom);
+        joinedRooms.add(activeRoom);
     }
 
     public void setDataOut(ObjectOutputStream dataOut) {
