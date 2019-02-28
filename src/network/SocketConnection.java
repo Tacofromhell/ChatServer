@@ -3,6 +3,7 @@ package network;
 import data.DataHandler;
 import data.NetworkMessage;
 import data.User;
+import storage.StorageHandler;
 
 import java.net.*;
 import java.io.*;
@@ -77,7 +78,6 @@ public class SocketConnection extends Thread implements Runnable {
 
         Broadcast.toAllExceptThisSocket(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser);
 //        SocketStreamHelper.sendData(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser.getDataOut());
-        socketUser.setOnlineStatus(false);
         ChatServer.get().removeConnection(clientSocket, socketUser);
 
     }

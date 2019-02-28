@@ -90,11 +90,10 @@ public class ChatServer {
     }
 
     public void removeConnection(Socket socket, User user) {
-        user.getJoinedRooms().forEach(joinedRoom ->
-                Broadcast.toRoom(joinedRoom, new ClientDisconnect(user.getID())));
+//        user.getJoinedRooms().forEach(joinedRoom ->
+//                Broadcast.toRoom(joinedRoom, new ClientDisconnect(user.getID())));
 
         try {
-            socket.close();
             getUser(user.getID()).setOnlineStatus(false);
             System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
             System.out.println("Connected clients: " +
@@ -103,6 +102,9 @@ public class ChatServer {
                             .count());
 
 
+            StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");
+            StorageHandler.saveToStorage(ChatServer.get().getUsers(), "users-data.ser");
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
