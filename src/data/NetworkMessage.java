@@ -62,11 +62,13 @@ public abstract class NetworkMessage implements Serializable {
         String targetRoom;
         User user;
         Room room;
+        boolean firstConnection;
 
-        public RoomJoin(String targetRoom, User user, Room room) {
+        public RoomJoin(String targetRoom, User user, Room room, boolean firstConnection) {
             this.targetRoom = targetRoom;
             this.user = user;
             this.room = room;
+            this.firstConnection = firstConnection;
         }
 
         public User getUser() {
