@@ -1,11 +1,7 @@
-package network;
+package data;
 
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.net.IDN;
-import java.net.Socket;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
@@ -18,29 +14,30 @@ public class User implements Serializable {
     private transient ObjectOutputStream dataOut;
     private boolean onlineStatus;
     private ArrayList<String> joinedRooms = new ArrayList<>();
-    String activeRoom = "general";
+    private String activeRoom = "";
 
     public User(ObjectOutputStream dataOut) {
-        //this.activeRoom = "general";
         this.ID = UUID.randomUUID().toString();
-        this.username = "anon"  + new Random().nextInt(1000);
+        this.username = "anon" + new Random().nextInt(1000);
         this.dataOut = dataOut;
         this.onlineStatus = true;
-        joinedRooms.add("general");
-        joinedRooms.add("other room");
+        addJoinedRoom("general");
         setActiveRoom("general");
-
     }
 
     public User(String name) {
-        //this.activeRoom = "general";
         this.ID = UUID.randomUUID().toString();
         this.username = name.length() > 0 ? name : "anon";
     }
 
-    public User(User oldUser) {
-        this.ID = oldUser.ID;
-        this.username = oldUser.username;
+    public void addJoinedRoom(String roomName) {
+        if (!joinedRooms.contains(roomName))
+            joinedRooms.add(roomName);
+    }
+
+    public void removeJoinedRoom(String roomName) {
+        if (joinedRooms.contains(roomName))
+            joinedRooms.remove(roomName);
     }
 
     public String getActiveRoom() {
@@ -49,6 +46,12 @@ public class User implements Serializable {
 
     public void setActiveRoom(String activeRoom) {
         this.activeRoom = activeRoom;
+
+        // move active room to index 1
+        joinedRooms.remove(activeRoom);
+        joinedRooms.add(0, activeRoom);
+        joinedRooms.remove("general");
+        joinedRooms.add(0, "general");
     }
 
     public void setDataOut(ObjectOutputStream dataOut) {
@@ -67,7 +70,7 @@ public class User implements Serializable {
         return this;
     }
 
-    public String getID(){
+    public String getID() {
         return this.ID;
     }
 
@@ -79,11 +82,11 @@ public class User implements Serializable {
         this.username = username;
     }
 
-    public void setOnlineStatus(boolean onlineStatus){
+    public void setOnlineStatus(boolean onlineStatus) {
         this.onlineStatus = onlineStatus;
     }
 
-    public boolean getOnlineStatus(){
+    public boolean getOnlineStatus() {
         return this.onlineStatus;
     }
 }//class end
