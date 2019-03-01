@@ -21,28 +21,11 @@ public class ChatServer {
     private ChatServer() {
         System.out.println("Starting server");
 
-        // TODO: add dataOut when user reconnects
+        // load backup
         allUsers = (ConcurrentHashMap) StorageHandler.readFile("users-data.ser");
         rooms = (ConcurrentHashMap) StorageHandler.readFile("rooms-data.ser");
-//        rooms = loadRoomsFromStorage();
-
-        allUsers.values().forEach(user ->{
-
-                System.out.println(user.getJoinedRooms());
-                System.out.println(user.getActiveRoom());
-                }
-        );
 
         new Thread(this::listeningOnClients).start();
-    }
-
-    private ConcurrentHashMap<String, Room> loadRoomsFromStorage() {
-        final ConcurrentHashMap<String, Room> rooms;
-        // Trying to fetch chat history from storage
-        rooms = (ConcurrentHashMap) StorageHandler.readFile("rooms-data.ser");
-        // Removing old users from the rooms
-        rooms.forEach((s, room) -> room.clearUsers());
-        return rooms;
     }
 
     public static ChatServer get() {
@@ -53,7 +36,6 @@ public class ChatServer {
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);
 
-            // TODO: find a way to store connection in a thread pool
             while (running) {
                 Socket clientSocket = serverSocket.accept();
                 new SocketConnection(clientSocket);
@@ -75,7 +57,6 @@ public class ChatServer {
         else
             rooms.putIfAbsent(room.getRoomName(), room);
     }
-
 
     public void addUser(User user) {
         if (allUsers.contains(user))
@@ -107,7 +88,6 @@ public class ChatServer {
                     allUsers.values().stream().filter((u) ->
                             u.getOnlineStatus() == true)
                             .count());
-
 
             StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");
             StorageHandler.saveToStorage(ChatServer.get().getUsers(), "users-data.ser");

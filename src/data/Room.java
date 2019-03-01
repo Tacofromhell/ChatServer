@@ -36,7 +36,7 @@ public abstract class Room implements Serializable {
     }
 
     public void addUserToRoom(User user) {
-        if(users.containsKey(user.getID())){
+        if (users.containsKey(user.getID())) {
             System.out.println(user.getUsername() + " welcome back to " + this.roomName);
         } else if (users.size() < roomSize) {
             users.putIfAbsent(user.getID(), user);
@@ -50,6 +50,11 @@ public abstract class Room implements Serializable {
 
     public ConcurrentHashMap<String, User> getUsers() {
         return users;
+    }
+
+    public void setUser(User user) {
+        users.remove(user.getID());
+        users.putIfAbsent(user.getID(), user);
     }
 
     public void updateUser(User updatedUser) {

@@ -36,6 +36,7 @@ public class SocketConnection extends Thread implements Runnable {
             socketUser.setOnlineStatus(true);
             socketUser.setDataOut(dataOut);
             socketUser.getJoinedRooms().forEach(roomName -> {
+                ChatServer.get().getRooms().get(roomName).setUser(socketUser);
                 ChatServer.get().getRooms().get(roomName).updateUser(this.socketUser);
             });
         } else {
@@ -50,10 +51,6 @@ public class SocketConnection extends Thread implements Runnable {
         startdataHandler.start();
 
         SocketStreamHelper.sendData(socketUser, dataOut);
-
-        // add user to general room
-//        ChatServer.get().getRooms().get("other room").addUserToRoom(socketUser);
-
 
         System.out.println(socketUser + " " + socketUser.getID());
         System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
@@ -77,12 +74,7 @@ public class SocketConnection extends Thread implements Runnable {
         System.out.println("Lost connection with " + clientSocket.getRemoteSocketAddress());
 
         Broadcast.toAllExceptThisSocket(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser);
-//        SocketStreamHelper.sendData(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser.getDataOut());
         ChatServer.get().removeConnection(clientSocket, socketUser);
-
-//        StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");
-//        StorageHandler.saveToStorage(ChatServer.get().getUsers(), "users-data.ser");
-
     }
 
 }

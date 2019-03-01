@@ -55,8 +55,9 @@ public class User implements Serializable {
     public void setActiveRoom(String activeRoom) {
         this.activeRoom = activeRoom;
 
+        // move active room to index 1
         joinedRooms.remove(activeRoom);
-        joinedRooms.add(activeRoom);
+        joinedRooms.add(1, activeRoom);
     }
 
     public void setDataOut(ObjectOutputStream dataOut) {
