@@ -25,9 +25,8 @@ public abstract class Room implements Serializable {
     }
 
     public void addUserToRoom(User user) {
-        if (users.containsKey(user.getID())) {
-            System.out.println(user.getUsername() + " welcome back to " + this.roomName);
-        } else if (users.size() < roomSize) {
+        if (!users.containsKey(user.getID()) &&
+                users.size() < roomSize) {
             users.putIfAbsent(user.getID(), user);
             System.out.println(user.getUsername() + " added to " + roomName);
         }

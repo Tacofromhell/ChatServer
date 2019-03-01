@@ -51,7 +51,6 @@ public class SocketConnection extends Thread implements Runnable {
 
         SocketStreamHelper.sendData(socketUser, dataOut);
 
-        System.out.println(socketUser + " " + socketUser.getID());
         System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
         System.out.println("Connected Clients: " +
                 ChatServer.get().getUsers().values().stream()

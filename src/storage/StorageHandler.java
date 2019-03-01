@@ -28,7 +28,6 @@ public class StorageHandler<T> {
 
             //Sending the serialized object to the filesystem and creating a new file
             out.writeObject(object);
-            System.out.println("Serialized data is saved in " + fileName);
         } catch (IOException i) {
             i.printStackTrace();
         }

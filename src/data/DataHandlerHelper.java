@@ -54,7 +54,6 @@ public class DataHandlerHelper {
 
     public void handleRoomJoin(String targetRoom, User user, boolean firstConnection) {
         // user needs to have socketStream
-        System.out.println(ChatServer.get().getRooms().size());
         ChatServer.get().getRooms().get(targetRoom).addUserToRoom(
                 ChatServer.get().getUser(user.getID()));
         socketUser.addJoinedRoom(targetRoom);
