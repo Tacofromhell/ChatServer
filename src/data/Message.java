@@ -15,13 +15,15 @@ public class Message implements Serializable {
     private LocalTime timestamp;
     private boolean toAll = true;
     private User user;
+    private byte[] imageBuffer;
 
-    public Message(Socket sender, String msg, User user, String room) {
+    public Message(Socket sender, String msg, User user, String room, byte[] imageBuffer) {
         this.sender = sender.getLocalSocketAddress().toString();
         this.user = user;
         this.msg = msg;
         this.room = room;
         this.timestamp = LocalTime.now();
+        this.imageBuffer = imageBuffer;
     }
 
     public Message(Socket sender, Socket reviever, String msg) {
