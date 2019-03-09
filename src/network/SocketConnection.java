@@ -3,7 +3,6 @@ package network;
 import data.DataHandler;
 import data.NetworkMessage;
 import data.User;
-import storage.StorageHandler;
 
 import java.net.*;
 import java.io.*;
@@ -52,9 +51,11 @@ public class SocketConnection extends Thread implements Runnable {
 
         SocketStreamHelper.sendData(socketUser, dataOut);
 
-        System.out.println(socketUser + " " + socketUser.getID());
         System.out.println(clientSocket.getRemoteSocketAddress() + " connected.");
-        System.out.println("Connected Clients: " + ChatServer.get().getUsers().values().stream().filter(user -> user.getOnlineStatus() == true).count());
+        System.out.println("Connected Clients: " +
+                ChatServer.get().getUsers().values().stream()
+                        .filter(user -> user.getOnlineStatus())
+                        .count());
 
         //Threadloop
         while (running) {
@@ -76,5 +77,4 @@ public class SocketConnection extends Thread implements Runnable {
         Broadcast.toAllExceptThisSocket(new NetworkMessage.ClientDisconnect(socketUser.getID()), socketUser);
         ChatServer.get().removeConnection(clientSocket, socketUser);
     }
-
 }

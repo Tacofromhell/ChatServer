@@ -25,10 +25,8 @@ public class Broadcast {
 
     public static void toRoom(String roomName, Object data) {
         ChatServer.get().getRooms().get(roomName).getUsers().values().stream()
-                .filter(user -> user.getOnlineStatus() == true)
-                .forEach(user -> {
-                    SocketStreamHelper.sendData(data, user.getDataOut());
-                });
+                .filter(user -> user.getOnlineStatus())
+                .forEach(user -> SocketStreamHelper.sendData(data, user.getDataOut()));
     }
 
 }

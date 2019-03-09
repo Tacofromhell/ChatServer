@@ -3,8 +3,6 @@ package storage;
 import data.PublicRoom;
 import data.Room;
 import data.User;
-import network.ChatServer;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,10 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StorageHandler<T> {
     public StorageHandler() {
 
-    }
-
-    public T getFromStorage(String fileName) {
-        return (T) readFile(fileName);
     }
 
     public static void saveToStorage(Object object, String fileName) {
@@ -34,7 +28,6 @@ public class StorageHandler<T> {
 
             //Sending the serialized object to the filesystem and creating a new file
             out.writeObject(object);
-            System.out.println("Serialized data is saved in " + fileName);
         } catch (IOException i) {
             i.printStackTrace();
         }

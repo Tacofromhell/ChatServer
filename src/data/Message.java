@@ -3,11 +3,11 @@ package data;
 import java.io.Serializable;
 import java.net.Socket;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class Message implements Serializable {
     private static final long serialVersionUID = 8119880995263638779L;
 
-    //    private transient Socket sender;
     private String sender;
     private transient Socket reviever;
     private String msg;
@@ -48,10 +48,8 @@ public class Message implements Serializable {
     }
 
     String getTimestamp() {
-        String hour = this.timestamp.getHour() < 10 ? "0" + this.timestamp.getHour() : "" + this.timestamp.getHour();
-        String minute = this.timestamp.getMinute() < 10 ? "0" + this.timestamp.getMinute() : "" + this.timestamp.getMinute();
-        String second = this.timestamp.getSecond() < 10 ? "0" + this.timestamp.getSecond() : "" + this.timestamp.getSecond();
-        return hour + "." + minute;
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+        return this.timestamp.format(timeFormat);
     }
 
     Boolean GetToAll() {

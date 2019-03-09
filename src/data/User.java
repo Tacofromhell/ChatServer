@@ -14,28 +14,20 @@ public class User implements Serializable {
     private transient ObjectOutputStream dataOut;
     private boolean onlineStatus;
     private ArrayList<String> joinedRooms = new ArrayList<>();
-    String activeRoom = "";
+    private String activeRoom = "";
 
     public User(ObjectOutputStream dataOut) {
-        //this.activeRoom = "general";
         this.ID = UUID.randomUUID().toString();
         this.username = "anon" + new Random().nextInt(1000);
         this.dataOut = dataOut;
         this.onlineStatus = true;
         addJoinedRoom("general");
         setActiveRoom("general");
-
     }
 
     public User(String name) {
-        //this.activeRoom = "general";
         this.ID = UUID.randomUUID().toString();
         this.username = name.length() > 0 ? name : "anon";
-    }
-
-    public User(User oldUser) {
-        this.ID = oldUser.ID;
-        this.username = oldUser.username;
     }
 
     public void addJoinedRoom(String roomName) {

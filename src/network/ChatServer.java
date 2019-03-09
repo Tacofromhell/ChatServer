@@ -1,11 +1,8 @@
 package network;
 
-import data.PublicRoom;
 import data.Room;
 import data.User;
-import data.NetworkMessage.*;
 import storage.StorageHandler;
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,8 +11,8 @@ public class ChatServer {
 
     private final int PORT = 1234;
     private boolean running = true;
-    private ConcurrentHashMap<String, User> allUsers = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, User> allUsers;
+    private ConcurrentHashMap<String, Room> rooms;
     private final static ChatServer singleton = new ChatServer();
 
     private ChatServer() {
@@ -52,7 +49,7 @@ public class ChatServer {
     }
 
     public void addRoom(Room room) {
-        if (rooms.contains(room.getRoomName()))
+        if (rooms.contains(room))
             System.out.println(room.getRoomName() + " already exists");
         else
             rooms.putIfAbsent(room.getRoomName(), room);
@@ -66,7 +63,7 @@ public class ChatServer {
     }
 
     public void removeUser(User user) {
-        allUsers.remove(user);
+        allUsers.remove(user.getID());
     }
 
     public User getUser(String targetUserID) {
@@ -78,15 +75,13 @@ public class ChatServer {
     }
 
     public void removeConnection(Socket socket, User user) {
-//        user.getJoinedRooms().forEach(joinedRoom ->
-//                Broadcast.toRoom(joinedRoom, new ClientDisconnect(user.getID())));
 
         try {
             getUser(user.getID()).setOnlineStatus(false);
             System.out.println("Removing connection: " + socket.getRemoteSocketAddress().toString());
             System.out.println("Connected clients: " +
                     allUsers.values().stream().filter((u) ->
-                            u.getOnlineStatus() == true)
+                            u.getOnlineStatus())
                             .count());
 
             StorageHandler.saveToStorage(ChatServer.get().getRooms(), "rooms-data.ser");

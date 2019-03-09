@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import data.Message;
-import data.User;
-
 public abstract class Room implements Serializable {
     private static final long serialVersionUID = 8119886995263638778L;
 
@@ -19,14 +16,6 @@ public abstract class Room implements Serializable {
         this.roomName = name;
     }
 
-    /*
-     * This function clears the users list. When we retrieve the chat history, we cannot assume that the users are online,
-     * hence, we will clear the users and when a user connects, we will add the user to the list.
-     * */
-    public void clearUsers() {
-        this.users = new ConcurrentHashMap<>();
-    }
-
     public String getRoomName() {
         return roomName;
     }
@@ -36,9 +25,8 @@ public abstract class Room implements Serializable {
     }
 
     public void addUserToRoom(User user) {
-        if (users.containsKey(user.getID())) {
-            System.out.println(user.getUsername() + " welcome back to " + this.roomName);
-        } else if (users.size() < roomSize) {
+        if (!users.containsKey(user.getID()) &&
+                users.size() < roomSize) {
             users.putIfAbsent(user.getID(), user);
             System.out.println(user.getUsername() + " added to " + roomName);
         }
